@@ -1,0 +1,3 @@
+#!/bin/bash
+
+vagrant ssh -c 'sudo journalctl -f -u portals'

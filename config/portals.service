@@ -5,7 +5,7 @@ After=network-online.target
 [Service]
 Type=simple
 WorkingDirectory=/workspace/app
-ExecStart=/workspace/app/run
+ExecStart=/usr/bin/env python3 app.py
 
 [Install]
 WantedBy=multi-user.target

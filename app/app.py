@@ -18,17 +18,30 @@
 
 from flask import Flask
 from flask import send_file
+from flask import session
+from flask_socketio import SocketIO, emit, join_room, leave_room
+
 import logging
+from logger import logger
+
+ROOM = 'portals'
 
 app = Flask(__name__, static_url_path='')
-
-for handler in logging.getLogger('gunicorn.error').handlers:
-    app.logger.addHandler(handler)
+app.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(app)
 
 @app.route('/')
 def index():
     return send_file('static/index.html')
 
+@socketio.on('joined', namespace='/chat')
+def joined(message):
+    join_room(ROOM)
+    emit('status', {'msg': 'Someone has entered the room'}, room=ROOM)
+
+@socketio.on('text', namespace='/chat')
+def text(message):
+    emit('message', {'msg': message['msg']}, room=ROOM)
 
 if __name__ == "__main__":
-    app.run(host='127.0.0.1', port=9999, debug=True)
+    socketio.run(app, host='0.0.0.0', port=8000, debug=True)

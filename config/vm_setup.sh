@@ -13,6 +13,11 @@ sudo apt-get -y install ipython3
 sudo apt-get -y install python3-flask
 sudo apt-get -y install python3-psycopg2
 sudo apt-get -y install python3-sqlalchemy
+sudo apt-get -y install python3-eventlet
+
+sudo apt-get -y install python3-pip
+
+sudo pip3 install flask-socketio
 
 sudo ln -s /workspace/config/portals.service /lib/systemd/system/
 
