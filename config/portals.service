@@ -1,0 +1,11 @@
+[Unit]
+Description=pOrtals::reconLIVE:AV
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/workspace/app
+ExecStart=/workspace/app/run
+
+[Install]
+WantedBy=multi-user.target
