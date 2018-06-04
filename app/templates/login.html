@@ -1,0 +1,25 @@
+<!DOCTYPE>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+    </head>
+    <body>
+        <h1>pOrtals::reconLIVE:AV</h1>
+        {% if error %}
+            <p class=error><strong>Error:</strong> {{ error }}
+        {% endif %}
+        <form action="" method="post">
+            <label>Username </label><input id="username" type="text" name="username">
+            <br />
+            <label>Password </label><input type="password" name="password">
+            <br /><br />
+            <input type="submit" value="Login">
+        </form>
+
+        <script>
+            (function () {
+                document.getElementById('username').focus();
+            })();
+        </script>
+    </body>
+</html>

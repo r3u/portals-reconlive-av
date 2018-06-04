@@ -35,10 +35,11 @@ $(function() {
     $('#text').keypress(function(e) {
         var code = e.keyCode || e.which;
         if (code === 13) {
-            text = $('#text').val();
+            text = $('#text').val().trim();
             $('#text').val('');
-            socket.emit('text', {msg: text});
+            if (text !== '') {
+                socket.emit('text', {msg: text});
+            }
         }
     });
-
 });
