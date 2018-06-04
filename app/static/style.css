@@ -1,6 +1,6 @@
 /*
  * pOrtals::reconLIVE:AV
- * 
+ *
  * Copyright (C) 2018  Rachael Melanson
  * Copyright (C) 2018  Henry Rodrick
  *
@@ -21,4 +21,19 @@
 body {
     color: #333333;
     font-family: monospace;
+}
+
+a {
+    color: #777777;
+}
+a:visited {
+    color: #777777;
+}
+
+.connected {
+    color: green;
+}
+
+.disconnected {
+    color: red;
 }

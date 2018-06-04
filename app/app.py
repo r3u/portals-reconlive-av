@@ -94,7 +94,6 @@ def joined(message):
 def text(message):
     if not current_user.is_authenticated:
         return disconnect()
-    check_valid_login()
     emit('message', {'msg': message['msg']}, room=ROOM)
 
 if __name__ == "__main__":

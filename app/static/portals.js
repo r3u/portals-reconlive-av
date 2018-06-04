@@ -18,10 +18,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+function setConnectionStatus(status) {
+    var el = $('#connection-status');
+    el.removeClass('disconnected').removeClass('connected')
+    if (status === 'connected') {
+        el.addClass('connected');
+    } else if (status == 'disconnected') {
+        el.addClass('disconnected');
+    }
+    el.html(status);
+}
+
 $(function() {
     socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
+    setConnectionStatus("connecting");
 
     socket.on('connect', function() {
+        setConnectionStatus("connected");
         socket.emit('joined', {});
     });
     socket.on('status', function(data) {
@@ -31,6 +44,9 @@ $(function() {
     socket.on('message', function(data) {
         $('#chat').val($('#chat').val() + data.msg + '\n');
         $('#chat').scrollTop($('#chat')[0].scrollHeight);
+    });
+    socket.on('disconnect', function(){
+        setConnectionStatus("disconnected");
     });
     $('#text').keypress(function(e) {
         var code = e.keyCode || e.which;
