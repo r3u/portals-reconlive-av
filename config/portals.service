@@ -3,6 +3,8 @@ Description=pOrtals::reconLIVE:AV
 After=network-online.target
 
 [Service]
+User=portals
+Group=portals
 Type=simple
 WorkingDirectory=/workspace/app
 ExecStart=/usr/bin/env python3 app.py
