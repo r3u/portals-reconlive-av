@@ -28,6 +28,11 @@ mkdir /etc/portals
 sudo bash -c "/usr/bin/env python3 /workspace/util/genenv.py > /etc/portals/environment"
 sudo ln -s /workspace/config/portals.service /lib/systemd/system/
 
+sudo -u postgres createdb portals
+echo "CREATE ROLE portals LOGIN PASSWORD 'portals' NOINHERIT NOCREATEDB;" | sudo -u postgres psql portals
+echo 'CREATE SCHEMA portals AUTHORIZATION portals;' | sudo -u postgres psql portals
+sudo -u portals psql < /workspace/schema/portals.sql
+
 sudo systemctl daemon-reload
 sudo systemctl enable portals
 sudo systemctl restart portals

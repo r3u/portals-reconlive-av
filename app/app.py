@@ -18,12 +18,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import Flask, request, redirect, abort
+from flask import Flask, request, redirect, abort, jsonify, make_response
 from flask import session, send_file, render_template
 from flask_login import (LoginManager, UserMixin, current_user,
                         login_user, logout_user, login_required)
 from flask_socketio import SocketIO, emit, join_room, leave_room, disconnect
+from flask_sqlalchemy import SQLAlchemy as SA
 
+from functools import wraps, update_wrapper
+from datetime import datetime
 import sys
 import os
 import logging
@@ -37,9 +40,38 @@ class User(UserMixin):
 app = Flask('portals', static_url_path='')
 app.logger.setLevel(logging.DEBUG)
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://portals:portals@localhost:5432/portals'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# See https://github.com/mitsuhiko/flask-sqlalchemy/issues/589#issuecomment-361075700
+class SQLAlchemy(SA):
+    def apply_pool_defaults(self, app, options):
+        SA.apply_pool_defaults(self, app, options)
+        options["pool_pre_ping"] = True
+
+db = SQLAlchemy(app)
 socketio = SocketIO(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
+class Chatlog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.Text)
+
+
+def nocache(view):
+    @wraps(view)
+    def no_cache(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers['Last-Modified'] = datetime.now()
+        cc = ('no-store, no-cache, must-revalidate, ' +
+              'post-check=0, pre-check=0, max-age=0')
+        response.headers['Cache-Control'] = cc
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        return response
+    return update_wrapper(no_cache, view)
 
 def public_endpoint(function):
     function.is_public = True
@@ -85,6 +117,14 @@ def index():
 def style_css():
     return send_file('static/style.css')
 
+@app.route('/chatlog.json')
+@nocache
+def chatlog():
+    results = Chatlog.query.order_by(Chatlog.id.desc()).limit(100).all()
+    messages = [{"id": ent.id, "message": ent.message}
+                for ent in reversed(results)]
+    return jsonify({'messages': messages})
+
 @socketio.on('joined', namespace='/chat')
 def joined(message):
     if not current_user.is_authenticated:
@@ -96,7 +136,11 @@ def joined(message):
 def text(message):
     if not current_user.is_authenticated:
         return disconnect()
-    emit('message', {'msg': message['msg']}, room=ROOM)
+    text = message['msg']
+    logentry = Chatlog(message=text)
+    db.session.add(logentry)
+    db.session.commit()
+    emit('message', {'msg': text}, room=ROOM)
 
 if __name__ == "__main__":
     socketio.run(app, host='0.0.0.0', port=8000, debug=True)

@@ -29,21 +29,36 @@ function setConnectionStatus(status) {
     el.html(status);
 }
 
+function loadChatHistory(cb) {
+	$.ajax({
+		url: '/chatlog.json',
+		success: function(data) {
+			if(cb) {
+				cb(null, data);
+			}
+		}
+	});
+}
+
+function appendToChat(message) {
+	$('#chat').val($('#chat').val() + message + '\n');
+	$('#chat').scrollTop($('#chat')[0].scrollHeight);
+}
+
 $(function() {
     socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
     setConnectionStatus("connecting");
 
     socket.on('connect', function() {
+        $('#chat').val('');
+		loadChatHistory(function(err, data) {
+			console.log(data);
+		});
         setConnectionStatus("connected");
         socket.emit('joined', {});
     });
-    socket.on('status', function(data) {
-        $('#chat').val($('#chat').val() + '<' + data.msg + '>\n');
-        $('#chat').scrollTop($('#chat')[0].scrollHeight);
-    });
     socket.on('message', function(data) {
-        $('#chat').val($('#chat').val() + data.msg + '\n');
-        $('#chat').scrollTop($('#chat')[0].scrollHeight);
+		appendToChat(data.msg + '\n')
     });
     socket.on('disconnect', function(){
         setConnectionStatus("disconnected");
