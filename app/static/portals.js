@@ -41,7 +41,7 @@ function loadChatHistory(cb) {
 }
 
 function appendToChat(message) {
-	$('#chat').val($('#chat').val() + message + '\n');
+	$('#chat').val($('#chat').val() + message);
 	$('#chat').scrollTop($('#chat')[0].scrollHeight);
 }
 
@@ -52,7 +52,8 @@ $(function() {
     socket.on('connect', function() {
         $('#chat').val('');
 		loadChatHistory(function(err, data) {
-			console.log(data);
+            var history = data.messages.map(m => m.message).join('\n');
+            appendToChat(history + '\n');
 		});
         setConnectionStatus("connected");
         socket.emit('joined', {});

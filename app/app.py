@@ -55,10 +55,17 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+class Player(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+class Game(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
 class Chatlog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    message = db.Column(db.Text)
-
+    game_id = db.Column(db.Integer, db.ForeignKey(Game.id), nullable=False)
+    player_id = db.Column(db.Integer, db.ForeignKey(Player.id), nullable=False)
+    message = db.Column(db.Text, nullable=False)
 
 def nocache(view):
     @wraps(view)
@@ -137,7 +144,7 @@ def text(message):
     if not current_user.is_authenticated:
         return disconnect()
     text = message['msg']
-    logentry = Chatlog(message=text)
+    logentry = Chatlog(game_id=1, player_id=1, message=text)
     db.session.add(logentry)
     db.session.commit()
     emit('message', {'msg': text}, room=ROOM)
