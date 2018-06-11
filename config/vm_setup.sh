@@ -29,6 +29,7 @@ sudo bash -c "/usr/bin/env python3 /workspace/util/genenv.py > /etc/portals/envi
 sudo ln -s /workspace/config/portals.service /lib/systemd/system/
 
 sudo -u postgres createdb portals
+echo 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' | sudo -u postgres psql
 echo "CREATE ROLE portals LOGIN PASSWORD 'portals' NOINHERIT NOCREATEDB;" | sudo -u postgres psql portals
 echo 'CREATE SCHEMA portals AUTHORIZATION portals;' | sudo -u postgres psql portals
 sudo -u portals psql < /workspace/schema/portals.sql

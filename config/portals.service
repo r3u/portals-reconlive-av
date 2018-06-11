@@ -1,13 +1,16 @@
 [Unit]
 Description=pOrtals::reconLIVE:AV
 After=network-online.target
+StartLimitIntervalSec=0
 
 [Service]
 User=portals
 Group=portals
 Type=simple
 WorkingDirectory=/workspace/app
-ExecStart=/usr/bin/env python3 app.py
+ExecStart=/usr/bin/env python3 server.py
+Restart=on-failure
+RestartSec=1s
 EnvironmentFile=/etc/portals/environment
 
 [Install]

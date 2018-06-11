@@ -30,19 +30,19 @@ function setConnectionStatus(status) {
 }
 
 function loadChatHistory(cb) {
-	$.ajax({
-		url: '/chatlog.json',
-		success: function(data) {
-			if(cb) {
-				cb(null, data);
-			}
-		}
-	});
+    $.ajax({
+        url: '/chatlog.json',
+        success: function(data) {
+            if(cb) {
+                cb(null, data);
+            }
+        }
+    });
 }
 
 function appendToChat(message) {
-	$('#chat').val($('#chat').val() + message);
-	$('#chat').scrollTop($('#chat')[0].scrollHeight);
+    $('#chat').val($('#chat').val() + message);
+    $('#chat').scrollTop($('#chat')[0].scrollHeight);
 }
 
 $(function() {
@@ -51,15 +51,17 @@ $(function() {
 
     socket.on('connect', function() {
         $('#chat').val('');
-		loadChatHistory(function(err, data) {
-            var history = data.messages.map(m => m.message).join('\n');
-            appendToChat(history + '\n');
-		});
+        loadChatHistory(function(err, data) {
+            if (data.messages && data.messages.length > 0) {
+                var history = data.messages.map(m => m.message).join('\n');
+                appendToChat(history + '\n');
+            }
+        });
         setConnectionStatus("connected");
         socket.emit('joined', {});
     });
     socket.on('message', function(data) {
-		appendToChat(data.msg + '\n')
+        appendToChat(data.msg + '\n')
     });
     socket.on('disconnect', function(){
         setConnectionStatus("disconnected");

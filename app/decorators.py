@@ -16,19 +16,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import Flask
-from flask_socketio import SocketIO
+from flask import make_response
+from functools import wraps, update_wrapper
+from datetime import datetime
 
-import os
-import logging
+def nocache(view):
+    @wraps(view)
+    def no_cache(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers['Last-Modified'] = datetime.now()
+        cc = ('no-store, no-cache, must-revalidate, ' +
+              'post-check=0, pre-check=0, max-age=0')
+        response.headers['Cache-Control'] = cc
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        return response
+    return update_wrapper(no_cache, view)
 
-app = Flask('portals', static_url_path='')
-app.logger.setLevel(logging.DEBUG)
-app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
-app.config['SQLALCHEMY_DATABASE_URI'] = \
-    'postgresql+psycopg2://portals:portals@localhost:5432/portals'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-socketio = SocketIO(app)
-
-
+def public_endpoint(function):
+    function.is_public = True
+    return function
