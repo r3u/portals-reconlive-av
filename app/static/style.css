@@ -30,6 +30,10 @@ a:visited {
     color: #777777;
 }
 
+textarea {
+    line-height: 1.5em;
+}
+
 .connected {
     color: green;
 }

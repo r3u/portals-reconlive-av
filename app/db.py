@@ -19,6 +19,7 @@
 from app import app
 from flask_sqlalchemy import SQLAlchemy as SA
 from flask_login import UserMixin
+from sqlalchemy.orm import relationship
 
 # See https://github.com/mitsuhiko/flask-sqlalchemy/issues/589#issuecomment-361075700
 class SQLAlchemy(SA):
@@ -41,3 +42,4 @@ class Chatlog(db.Model):
     game_id = db.Column(db.Integer, db.ForeignKey(Game.id), nullable=False)
     player_id = db.Column(db.Integer, db.ForeignKey(Player.id), nullable=False)
     message = db.Column(db.Text, nullable=False)
+    player = relationship("Player")

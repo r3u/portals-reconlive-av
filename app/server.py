@@ -86,7 +86,7 @@ def style_css():
 @nocache
 def chatlog():
     results = Chatlog.query.order_by(Chatlog.id.desc()).limit(100).all()
-    messages = [{"id": ent.id, "message": ent.message}
+    messages = [{ "id": ent.id, "message": ent.message, "player": ent.player.name }
                 for ent in reversed(results)]
     return jsonify({'messages': messages})
 
@@ -100,12 +100,11 @@ def joined(message):
 def text(message):
     if not current_user.is_authenticated:
         return disconnect()
-    text = message['msg']
+    text = message['message']
     logentry = Chatlog(game_id=1, player_id=current_user.get_id(), message=text)
     db.session.add(logentry)
     db.session.commit()
-    msg = "{0}> {1}".format(current_user.name, text)
-    emit('message', {'msg': msg}, room=ROOM)
+    emit('message', {'message': text, 'player': current_user.name}, room=ROOM)
 
 if __name__ == "__main__":
     socketio.run(app, host='0.0.0.0', port=8000, debug=True)

@@ -45,6 +45,10 @@ function appendToChat(message) {
     $('#chat').scrollTop($('#chat')[0].scrollHeight);
 }
 
+function chatFormat(player, message) {
+    return player + "> " + message;
+}
+
 $(function() {
     socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
     setConnectionStatus("connecting");
@@ -53,7 +57,9 @@ $(function() {
         $('#chat').val('');
         loadChatHistory(function(err, data) {
             if (data.messages && data.messages.length > 0) {
-                var history = data.messages.map(m => m.message).join('\n');
+                var history = data.messages.map(m =>
+                    chatFormat(m.player, m.message)
+                ).join('\n');
                 appendToChat(history + '\n');
             }
         });
@@ -61,7 +67,7 @@ $(function() {
         socket.emit('joined', {});
     });
     socket.on('message', function(data) {
-        appendToChat(data.msg + '\n')
+        appendToChat(chatFormat(data.player, data.message) + '\n')
     });
     socket.on('disconnect', function(){
         setConnectionStatus("disconnected");
@@ -72,7 +78,7 @@ $(function() {
             text = $('#text').val().trim();
             $('#text').val('');
             if (text !== '') {
-                socket.emit('text', {msg: text});
+                socket.emit('text', {message: text});
             }
         }
     });

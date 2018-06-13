@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-
 <!--
 pOrtals::reconLIVE:AV
 
@@ -19,7 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -->
-
+<!DOCTYPE html>
 <html>
     <head>
         <title>pOrtals::reconLIVE:AV</title>
@@ -31,8 +29,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         <p>Status: <span id="connection-status"></span>.
         Click <a href="/logout">here</a> to log out.</p>
 
-        <textarea id="chat" cols="80" rows="20"></textarea><br><br>
-        <input id="text" size="80" placeholder="Enter your message here"><br><br>
+        <textarea id="chat" cols="80" rows="20" readonly="readonly">
+        </textarea>
+
+        <br><br>
+
+        <input id="text" size="80" placeholder="Say something"><br><br>
 
         <script src="lib/jquery-3.3.1.min.js"></script>
         <script src="lib/socket.io.js"></script>
