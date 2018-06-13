@@ -18,6 +18,7 @@
 
 from flask import Flask
 from flask_socketio import SocketIO
+from flask_bcrypt import Bcrypt
 
 import os
 import logging
@@ -30,5 +31,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = \
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 socketio = SocketIO(app)
+bcrypt = Bcrypt(app)
 
 

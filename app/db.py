@@ -18,6 +18,7 @@
 
 from app import app
 from flask_sqlalchemy import SQLAlchemy as SA
+from flask_login import UserMixin
 
 # See https://github.com/mitsuhiko/flask-sqlalchemy/issues/589#issuecomment-361075700
 class SQLAlchemy(SA):
@@ -27,8 +28,10 @@ class SQLAlchemy(SA):
 
 db = SQLAlchemy(app)
 
-class Player(db.Model):
+class Player(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.VARCHAR(length=255))
+    password = db.Column(db.VARCHAR(length=255))
 
 class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)

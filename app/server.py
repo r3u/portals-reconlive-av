@@ -20,15 +20,16 @@
 
 from flask import request, redirect, abort, jsonify, make_response
 from flask import session, send_file, render_template
-from flask_login import (LoginManager, UserMixin, current_user,
+from flask_login import (LoginManager, current_user,
                         login_user, logout_user, login_required)
 from flask_socketio import emit, join_room, leave_room, disconnect
+from sqlalchemy.orm.exc import NoResultFound
 
 import sys
 import os
 import logging
 
-from app import app, socketio
+from app import app, socketio, bcrypt
 from db import db, Player, Game, Chatlog
 from decorators import public_endpoint, nocache
 
@@ -36,11 +37,6 @@ ROOM = 'portals'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-
-class User(UserMixin):
-    def __init__(self, id):
-        self.id = id
-
 
 @app.before_request
 def check_valid_login():
@@ -50,7 +46,7 @@ def check_valid_login():
 
 @login_manager.user_loader
 def load_user(userid):
-    return User(userid)
+    return Player.query.get(int(userid))
 
 @public_endpoint
 @app.route('/login', methods=['GET', 'POST'])
@@ -58,13 +54,17 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if username == "guide" and password == "foobar":
-            user = User(1)
-            login_user(user)
-            return redirect('/')
-        else:
-            error = "Invalid username or password"
-            return render_template('login.html', error=error)
+        query = Player.query.filter(Player.name == username)
+        try:
+            player = query.one()
+            if (password is not None and
+                bcrypt.check_password_hash(player.password, password)):
+                login_user(player)
+                return redirect('/')
+        except NoResultFound:
+            pass
+        error = "Invalid username or password"
+        return render_template('login.html', error=error)
     else:
         return render_template('login.html')
 
@@ -95,17 +95,17 @@ def joined(message):
     if not current_user.is_authenticated:
         return disconnect()
     join_room(ROOM)
-    emit('status', {'msg': 'Someone has entered the room'}, room=ROOM)
 
 @socketio.on('text', namespace='/chat')
 def text(message):
     if not current_user.is_authenticated:
         return disconnect()
     text = message['msg']
-    logentry = Chatlog(game_id=1, player_id=1, message=text)
+    logentry = Chatlog(game_id=1, player_id=current_user.get_id(), message=text)
     db.session.add(logentry)
     db.session.commit()
-    emit('message', {'msg': text}, room=ROOM)
+    msg = "{0}> {1}".format(current_user.name, text)
+    emit('message', {'msg': msg}, room=ROOM)
 
 if __name__ == "__main__":
     socketio.run(app, host='0.0.0.0', port=8000, debug=True)
