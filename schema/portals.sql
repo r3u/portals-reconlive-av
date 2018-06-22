@@ -23,4 +23,5 @@ CREATE TABLE chatlog(
 
 -- Temp password: guide
 INSERT INTO player(name, password) VALUES ('guide', '$2b$12$rfudtuKq7T0.PyyafERRJ.2lAtjv92Dh.tR8uY/0.j4PBzEYywDxC');
+INSERT INTO player(name, password) VALUES ('tester', '$2y$12$k90XEfRb7O7rVnvpo05ixOgV8NIfqlNh06zQZrKaQLaArMzoHM4hW');
 INSERT INTO game(name) VALUES ('Test Game');

@@ -84,17 +84,21 @@ def style_css():
 
 @app.route('/chatlog.json')
 @nocache
+def chatlog_json():
+    return jsonify(chatlog())
+
 def chatlog():
     results = Chatlog.query.order_by(Chatlog.id.desc()).limit(100).all()
     messages = [{ "id": ent.id, "message": ent.message, "player": ent.player.name }
                 for ent in reversed(results)]
-    return jsonify({'messages': messages})
+    return {'messages': messages}
 
 @socketio.on('joined', namespace='/chat')
 def joined(message):
     if not current_user.is_authenticated:
         return disconnect()
     join_room(ROOM)
+    emit('messages', chatlog()['messages'], room=request.sid)
 
 @socketio.on('text', namespace='/chat')
 def text(message):
@@ -104,7 +108,7 @@ def text(message):
     logentry = Chatlog(game_id=1, player_id=current_user.get_id(), message=text)
     db.session.add(logentry)
     db.session.commit()
-    emit('message', {'message': text, 'player': current_user.name}, room=ROOM)
+    emit('messages', [{'message': text, 'player': current_user.name}], room=ROOM)
 
 if __name__ == "__main__":
     socketio.run(app, host='0.0.0.0', port=80, debug=True)

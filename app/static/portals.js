@@ -55,19 +55,13 @@ $(function() {
 
     socket.on('connect', function() {
         $('#chat').val('');
-        loadChatHistory(function(err, data) {
-            if (data.messages && data.messages.length > 0) {
-                var history = data.messages.map(m =>
-                    chatFormat(m.player, m.message)
-                ).join('\n');
-                appendToChat(history + '\n');
-            }
-        });
         setConnectionStatus("connected");
         socket.emit('joined', {});
     });
-    socket.on('message', function(data) {
-        appendToChat(chatFormat(data.player, data.message) + '\n')
+    socket.on('messages', function(messages) {
+	messages.forEach(function(entry) {
+            appendToChat(chatFormat(entry.player, entry.message) + '\n')
+        });
     });
     socket.on('disconnect', function(){
         setConnectionStatus("disconnected");
