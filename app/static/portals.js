@@ -45,8 +45,8 @@ function appendToChat(message) {
     $('#chat').scrollTop($('#chat')[0].scrollHeight);
 }
 
-function chatFormat(player, message) {
-    return player + "> " + message;
+function chatFormat(actor, message) {
+    return actor + "> " + message;
 }
 
 $(function() {
@@ -58,14 +58,17 @@ $(function() {
         setConnectionStatus("connected");
         socket.emit('joined', {});
     });
+
     socket.on('messages', function(messages) {
-	messages.forEach(function(entry) {
-            appendToChat(chatFormat(entry.player, entry.message) + '\n')
+        messages.forEach(function(entry) {
+            appendToChat(chatFormat(entry.actor, entry.message) + '\n')
         });
     });
+
     socket.on('disconnect', function(){
         setConnectionStatus("disconnected");
     });
+
     $('#text').keypress(function(e) {
         var code = e.keyCode || e.which;
         if (code === 13) {

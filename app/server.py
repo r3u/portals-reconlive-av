@@ -30,7 +30,7 @@ import os
 import logging
 
 from app import app, socketio, bcrypt
-from db import db, Player, Game, Chatlog
+from db import db, Actor, Session, ChatlogEntry
 from decorators import public_endpoint, nocache
 
 ROOM = 'portals'
@@ -46,7 +46,7 @@ def check_valid_login():
 
 @login_manager.user_loader
 def load_user(userid):
-    return Player.query.get(int(userid))
+    return Actor.query.get(int(userid))
 
 @public_endpoint
 @app.route('/login', methods=['GET', 'POST'])
@@ -54,12 +54,12 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        query = Player.query.filter(Player.name == username)
+        query = Actor.query.filter(Actor.name == username)
         try:
-            player = query.one()
+            actor = query.one()
             if (password is not None and
-                bcrypt.check_password_hash(player.password, password)):
-                login_user(player)
+                bcrypt.check_password_hash(actor.password, password)):
+                login_user(actor)
                 return redirect('/')
         except NoResultFound:
             pass
@@ -88,8 +88,8 @@ def chatlog_json():
     return jsonify(chatlog())
 
 def chatlog():
-    results = Chatlog.query.order_by(Chatlog.id.desc()).limit(100).all()
-    messages = [{ "id": ent.id, "message": ent.message, "player": ent.player.name }
+    results = ChatlogEntry.query.order_by(ChatlogEntry.id.desc()).limit(100).all()
+    messages = [{ "id": ent.id, "message": ent.message, "actor": ent.actor.name }
                 for ent in reversed(results)]
     return {'messages': messages}
 
@@ -105,10 +105,10 @@ def text(message):
     if not current_user.is_authenticated:
         return disconnect()
     text = message['message']
-    logentry = Chatlog(game_id=1, player_id=current_user.get_id(), message=text)
+    logentry = ChatlogEntry(session_id=1, actor_id=current_user.get_id(), message=text)
     db.session.add(logentry)
     db.session.commit()
-    emit('messages', [{'message': text, 'player': current_user.name}], room=ROOM)
+    emit('messages', [{'message': text, 'actor': current_user.name}], room=ROOM)
 
 if __name__ == "__main__":
     socketio.run(app, host='0.0.0.0', port=80, debug=True)

@@ -29,17 +29,18 @@ class SQLAlchemy(SA):
 
 db = SQLAlchemy(app)
 
-class Player(db.Model, UserMixin):
+class Actor(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.VARCHAR(length=255))
     password = db.Column(db.VARCHAR(length=255))
 
-class Game(db.Model):
+class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-class Chatlog(db.Model):
+class ChatlogEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    game_id = db.Column(db.Integer, db.ForeignKey(Game.id), nullable=False)
-    player_id = db.Column(db.Integer, db.ForeignKey(Player.id), nullable=False)
+    session_id = db.Column(db.Integer, db.ForeignKey(Session.id), nullable=False)
+    actor_id = db.Column(db.Integer, db.ForeignKey(Actor.id), nullable=False)
     message = db.Column(db.Text, nullable=False)
-    player = relationship("Player")
+    session = actor = relationship("Session")
+    actor = relationship("Actor")
