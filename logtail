@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/bin/sh
 
 vagrant ssh -c 'sudo journalctl -f -n 1000 -u portals'

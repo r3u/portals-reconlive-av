@@ -1,0 +1,3 @@
+#!/bin/sh
+
+vagrant ssh -c 'sudo -u portals psql'
