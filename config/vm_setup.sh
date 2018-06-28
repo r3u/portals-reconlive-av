@@ -12,14 +12,7 @@ sudo apt-get -y install postgresql
 sudo apt-get -y install ipython3
 sudo apt-get -y install python3-pip
 
-sudo pip3 install eventlet
-sudo pip3 install psycopg2-binary
-sudo pip3 install sqlalchemy
-sudo pip3 install flask
-sudo pip3 install flask-sqlalchemy
-sudo pip3 install flask-socketio
-sudo pip3 install flask-bcrypt
-sudo pip3 install flask-login
+sudo pip3 install -r /workspace/requirements.txt
 
 sudo setcap 'cap_net_bind_service=+ep' $(readlink -f $(which python3))
 

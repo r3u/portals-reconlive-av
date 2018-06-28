@@ -1,7 +1,11 @@
+DROP TYPE IF EXISTS actor_role;
+CREATE TYPE actor_role AS ENUM('guide', 'scout');
+
 DROP TABLE IF EXISTS actor CASCADE;
 CREATE TABLE actor(
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    role actor_role NOT NULL,
     password VARCHAR(255) NOT NULL,
     date_created TIMESTAMP NOT NULL DEFAULT now(),
     UNIQUE(name)
@@ -56,9 +60,18 @@ CREATE TABLE chatlog_entry(
 -- test data --
 INSERT INTO world(name) VALUES('Test World');
 -- guide default password: guide
-INSERT INTO actor(name, password) VALUES ('guide', '$2b$12$rfudtuKq7T0.PyyafERRJ.2lAtjv92Dh.tR8uY/0.j4PBzEYywDxC');
+INSERT INTO actor(name, role, password)
+VALUES (
+    'guide',
+    'guide',
+    '$2b$12$rfudtuKq7T0.PyyafERRJ.2lAtjv92Dh.tR8uY/0.j4PBzEYywDxC'
+);
 -- tester default password: tester
-INSERT INTO actor(name, password) VALUES ('tester', '$2y$12$k90XEfRb7O7rVnvpo05ixOgV8NIfqlNh06zQZrKaQLaArMzoHM4hW');
+INSERT INTO actor(name, role, password) VALUES (
+    'tester',
+    'scout',
+    '$2y$12$k90XEfRb7O7rVnvpo05ixOgV8NIfqlNh06zQZrKaQLaArMzoHM4hW'
+);
 
 INSERT INTO session(code, world_id) VALUES ('TestSession', (SELECT id FROM world WHERE name = 'Test World'));
 
@@ -73,4 +86,3 @@ INSERT INTO path(a, b) VALUES (
     (SELECT id FROM location WHERE name = 'Old Grand Hotel'),
     (SELECT id FROM location WHERE name = 'Plaza')
 );
-
