@@ -16,19 +16,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#
 
-from app import app
-from flask_sqlalchemy import SQLAlchemy as SQLAlchemyBase
-
-
-# See https://github.com/mitsuhiko/flask-sqlalchemy/issues/589#issuecomment-361075700
-class SQLAlchemy(SQLAlchemyBase):
-    def apply_pool_defaults(self, flask_app, options):
-        SQLAlchemyBase.apply_pool_defaults(self, flask_app, options)
-        # options["echo"] = True
-        options["pool_pre_ping"] = True
+from sqlalchemy.orm.exc import NoResultFound
+from model import Session
 
 
-db = SQLAlchemy(app)
-
+def get_active_session() -> Session:
+    try:
+        return Session.query.filter(Session.active == True).one()
+    except NoResultFound:
+        return None

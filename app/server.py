@@ -17,16 +17,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
 
-from flask import request, redirect, jsonify
+from flask import request, redirect
 from flask import send_file, render_template
 from flask_login import (LoginManager, current_user, login_user, logout_user)
 from flask_socketio import emit, join_room, disconnect
 from sqlalchemy.orm.exc import NoResultFound
 
 from app import app, socketio, bcrypt
-from db import db, Actor, ChatlogEntry
-from decorators import public_endpoint, nocache
+from model import Actor, ChatlogEntry
+from services.session_service import get_active_session
+from services.chat_service import load_chat_log, save_log_entry
+from decorators import public_endpoint
 
 ROOM = 'portals'
 
@@ -42,8 +45,8 @@ def check_valid_login():
 
 
 @login_manager.user_loader
-def load_user(userid):
-    return Actor.query.get(int(userid))
+def load_user(user_id):
+    return Actor.query.get(int(user_id))
 
 
 @public_endpoint
@@ -55,8 +58,7 @@ def login():
         query = Actor.query.filter(Actor.name == username)
         try:
             actor = query.one()
-            if (password is not None and
-                bcrypt.check_password_hash(actor.password, password)):
+            if (password is not None and bcrypt.check_password_hash(actor.password, password)):
                 login_user(actor)
                 return redirect('/')
         except NoResultFound:
@@ -87,17 +89,13 @@ def style_css():
     return send_file('static/style.css')
 
 
-@app.route('/chatlog.json')
-@nocache
-def chatlog_json():
-    return jsonify(chatlog())
-
-
-def chatlog():
-    results = ChatlogEntry.query.order_by(ChatlogEntry.id.desc()).limit(100).all()
-    messages = [{"id": ent.id, "message": ent.message, "actor": ent.actor.name }
-                for ent in reversed(results)]
-    return {'messages': messages}
+def rest_chat_msg(ent: ChatlogEntry):
+    return {
+        "session_id": ent.session_id,
+        "id": ent.id,
+        "message": ent.message,
+        "actor": ent.actor.name
+    }
 
 
 @socketio.on('joined', namespace='/chat')
@@ -105,7 +103,12 @@ def joined(_message):
     if not current_user.is_authenticated:
         return disconnect()
     join_room(ROOM)
-    emit('messages', chatlog()['messages'], room=request.sid)
+    active_session = get_active_session()
+    if not active_session:
+        app.logger.warn("Message ignored: No active session")
+        return
+    messages = [rest_chat_msg(ent) for ent in load_chat_log(active_session.id)]
+    emit('messages', messages, room=request.sid)
 
 
 @socketio.on('text', namespace='/chat')
@@ -113,12 +116,12 @@ def text(message):
     if not current_user.is_authenticated:
         return disconnect()
     message_text = message['message']
-    log_entry = ChatlogEntry(session_id=1,
-                             actor_id=current_user.get_id(),
-                             message=message_text)
-    db.session.add(log_entry)
-    db.session.commit()
-    emit('messages', [{'message': message_text, 'actor': current_user.name}], room=ROOM)
+    active_session = get_active_session()
+    if not active_session:
+        app.logger.warn("Message ignored: No active session")
+        return
+    ent = save_log_entry(active_session, current_user, message_text)
+    emit('messages', [rest_chat_msg(ent)], room=ROOM)
 
 
 if __name__ == "__main__":

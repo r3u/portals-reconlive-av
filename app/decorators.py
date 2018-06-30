@@ -1,3 +1,4 @@
+#
 # pOrtals::reconLIVE:AV
 #
 # Copyright (C) 2018  Rachael Melanson
@@ -15,6 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
 
 from flask import make_response
 from functools import wraps, update_wrapper
@@ -35,6 +37,6 @@ def nocache(view):
     return update_wrapper(no_cache, view)
 
 
-def public_endpoint(function):
-    function.is_public = True
-    return function
+def public_endpoint(fn):
+    fn.is_public = True
+    return fn

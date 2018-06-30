@@ -26,15 +26,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     </head>
     <body>
         <h1>pOrtals::reconLIVE:AV</h1>
+
         <p>Status: <span id="connection-status"></span>.
-        Click <a href="/logout">here</a> to log out.</p>
+            Click <a href="/logout">here</a> to log out.</p>
 
-        <textarea id="chat" cols="80" rows="20" readonly="readonly">
-        </textarea>
-
-        <br><br>
-
-        <input id="text" size="80" placeholder="Say something"><br><br>
+        {% include 'chat_view.html' %}
 
         <script src="lib/jquery-3.3.1.min.js"></script>
         <script src="lib/socket.io.js"></script>

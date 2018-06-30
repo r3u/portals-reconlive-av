@@ -16,19 +16,26 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#
 
-from app import app
-from flask_sqlalchemy import SQLAlchemy as SQLAlchemyBase
-
-
-# See https://github.com/mitsuhiko/flask-sqlalchemy/issues/589#issuecomment-361075700
-class SQLAlchemy(SQLAlchemyBase):
-    def apply_pool_defaults(self, flask_app, options):
-        SQLAlchemyBase.apply_pool_defaults(self, flask_app, options)
-        # options["echo"] = True
-        options["pool_pre_ping"] = True
+from model import ChatlogEntry, Session, Actor
+from typing import Iterator
+from db import db
 
 
-db = SQLAlchemy(app)
+def load_chat_log(session_id, limit=100) -> Iterator[ChatlogEntry]:
+    results = ChatlogEntry \
+        .query \
+        .filter(ChatlogEntry.session_id == session_id) \
+        .order_by(ChatlogEntry.id.desc()) \
+        .limit(limit) \
+        .all()
+    return reversed(results)
 
+
+def save_log_entry(session: Session, actor: Actor, message: str) -> ChatlogEntry:
+    log_entry = ChatlogEntry(session_id=session.id,
+                             actor_id=actor.id,
+                             message=message)
+    db.session.add(log_entry)
+    db.session.commit()
+    return log_entry

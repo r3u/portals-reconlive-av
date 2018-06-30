@@ -1,5 +1,6 @@
-DROP TYPE IF EXISTS actor_role;
+DROP TYPE IF EXISTS actor_role CASCADE;
 CREATE TYPE actor_role AS ENUM('guide', 'scout');
+
 
 DROP TABLE IF EXISTS actor CASCADE;
 CREATE TABLE actor(
@@ -11,22 +12,25 @@ CREATE TABLE actor(
     UNIQUE(name)
 );
 
+
 DROP TABLE IF EXISTS world CASCADE;
 CREATE TABLE world(
     id SERIAL PRIMARY KEY,
-    name VARCHAR(256) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     date_created TIMESTAMP NOT NULL DEFAULT now(),
     UNIQUE(name)
 );
 
+
 DROP TABLE IF EXISTS location CASCADE;
 CREATE TABLE location(
     id SERIAL PRIMARY KEY,
-    name VARCHAR(256) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     world_id INTEGER NOT NULL REFERENCES world(id),
     date_created TIMESTAMP NOT NULL DEFAULT now(),
     UNIQUE(name, world_id)
 );
+
 
 DROP TABLE IF EXISTS path CASCADE;
 CREATE TABLE path(
@@ -38,14 +42,18 @@ CREATE INDEX path_a_idx ON path(a);
 CREATE INDEX path_b_idx ON path(b);
 ALTER TABLE path ADD CONSTRAINT path_check_no_self_loops CHECK (a <> b);
 
+
 DROP TABLE IF EXISTS session CASCADE;
 CREATE TABLE session(
     id SERIAL PRIMARY KEY,
-    code VARCHAR(256) NOT NULL,
-    world_id INTEGER NOT NULL REFERENCES world(id),
+    code VARCHAR(255) NOT NULL,
+    active boolean NOT NULL DEFAULT false,
+    current_location_id INTEGER NOT NULL REFERENCES location(id),
     date_created TIMESTAMP NOT NULL DEFAULT now(),
     UNIQUE(code)
 );
+CREATE UNIQUE INDEX ON session(active) WHERE active = true;
+
 
 DROP TABLE IF EXISTS chatlog_entry CASCADE;
 CREATE TABLE chatlog_entry(
@@ -58,7 +66,7 @@ CREATE TABLE chatlog_entry(
 
 
 -- test data --
-INSERT INTO world(name) VALUES('Test World');
+
 -- guide default password: guide
 INSERT INTO actor(name, role, password)
 VALUES (
@@ -73,7 +81,7 @@ INSERT INTO actor(name, role, password) VALUES (
     '$2y$12$k90XEfRb7O7rVnvpo05ixOgV8NIfqlNh06zQZrKaQLaArMzoHM4hW'
 );
 
-INSERT INTO session(code, world_id) VALUES ('TestSession', (SELECT id FROM world WHERE name = 'Test World'));
+INSERT INTO world(name) VALUES('Test World');
 
 INSERT INTO location(name, world_id) VALUES ('Plaza', (SELECT id FROM world WHERE name = 'Test World'));
 INSERT INTO location(name, world_id) VALUES ('Old Grand Hotel', (SELECT id FROM world WHERE name = 'Test World'));
@@ -86,3 +94,8 @@ INSERT INTO path(a, b) VALUES (
     (SELECT id FROM location WHERE name = 'Old Grand Hotel'),
     (SELECT id FROM location WHERE name = 'Plaza')
 );
+
+INSERT INTO session(code, current_location_id, active)
+VALUES ('TestSession1',
+        (SELECT id FROM world WHERE name = 'Test World'),
+        true);

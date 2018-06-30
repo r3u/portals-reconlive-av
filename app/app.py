@@ -1,3 +1,4 @@
+#
 # pOrtals::reconLIVE:AV
 #
 # Copyright (C) 2018  Rachael Melanson
@@ -15,6 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
 
 from flask import Flask
 from flask_socketio import SocketIO
@@ -22,10 +24,16 @@ from flask_bcrypt import Bcrypt
 
 import os
 import logging
+from uuid import uuid4
 
 app = Flask('portals', static_url_path='')
 app.logger.setLevel(logging.DEBUG)
-app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+if app.config['SECRET_KEY'] is None:
+    app.logger.warning("SECRET_KEY not set! Using random value.")
+    app.config['SECRET_KEY'] = str(uuid4())
+
+
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'postgresql+psycopg2://portals:portals@localhost:5432/portals'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

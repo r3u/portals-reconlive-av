@@ -29,20 +29,13 @@ function setConnectionStatus(status) {
     el.html(status);
 }
 
-function loadChatHistory(cb) {
-    $.ajax({
-        url: '/chatlog.json',
-        success: function(data) {
-            if(cb) {
-                cb(null, data);
-            }
-        }
-    });
+function clearChat() {
+    $('#chat-messages').val("");
 }
 
 function appendToChat(message) {
-    $('#chat').val($('#chat').val() + message);
-    $('#chat').scrollTop($('#chat')[0].scrollHeight);
+    $('#chat-messages').val($('#chat-messages').val() + message);
+    $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
 }
 
 function chatFormat(actor, message) {
@@ -50,17 +43,24 @@ function chatFormat(actor, message) {
 }
 
 $(function() {
+    var currentSession = null
     socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
     setConnectionStatus("connecting");
 
     socket.on('connect', function() {
-        $('#chat').val('');
+        $('#chat-messages').val('');
         setConnectionStatus("connected");
         socket.emit('joined', {});
     });
 
     socket.on('messages', function(messages) {
         messages.forEach(function(entry) {
+            if (currentSession === null) {
+                currentSession = entry.session_id;
+            } else if (currentSession !== entry.session_id) {
+                location.reload(true);
+                return;
+            }
             appendToChat(chatFormat(entry.actor, entry.message) + '\n')
         });
     });
@@ -69,11 +69,11 @@ $(function() {
         setConnectionStatus("disconnected");
     });
 
-    $('#text').keypress(function(e) {
+    $('#chat-input').keypress(function(e) {
         var code = e.keyCode || e.which;
         if (code === 13) {
-            text = $('#text').val().trim();
-            $('#text').val('');
+            text = $('#chat-input').val().trim();
+            $('#chat-input').val('');
             if (text !== '') {
                 socket.emit('text', {message: text});
             }
