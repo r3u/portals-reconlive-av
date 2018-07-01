@@ -34,13 +34,13 @@ CREATE TABLE location(
 
 DROP TABLE IF EXISTS path CASCADE;
 CREATE TABLE path(
-    a INTEGER NOT NULL REFERENCES location(id) ON UPDATE CASCADE ON DELETE CASCADE,
-    b INTEGER NOT NULL REFERENCES location(id) ON UPDATE CASCADE ON DELETE CASCADE,
-    PRIMARY KEY (a, b)
+    start_id INTEGER NOT NULL REFERENCES location(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    destination_id INTEGER NOT NULL REFERENCES location(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    PRIMARY KEY (start_id, destination_id)
 );
-CREATE INDEX path_a_idx ON path(a);
-CREATE INDEX path_b_idx ON path(b);
-ALTER TABLE path ADD CONSTRAINT path_check_no_self_loops CHECK (a <> b);
+CREATE INDEX path_start_id_idx ON path(start_id);
+CREATE INDEX path_destination_id_idx ON path(destination_id);
+ALTER TABLE path ADD CONSTRAINT path_check_no_self_loops CHECK (start_id <> destination_id);
 
 
 DROP TABLE IF EXISTS session CASCADE;
@@ -85,14 +85,24 @@ INSERT INTO world(name) VALUES('Test World');
 
 INSERT INTO location(name, world_id) VALUES ('Plaza', (SELECT id FROM world WHERE name = 'Test World'));
 INSERT INTO location(name, world_id) VALUES ('Old Grand Hotel', (SELECT id FROM world WHERE name = 'Test World'));
+INSERT INTO location(name, world_id) VALUES ('Hotel Basement', (SELECT id FROM world WHERE name = 'Test World'));
 
-INSERT INTO path(a, b) VALUES (
+INSERT INTO path(start_id, destination_id) VALUES (
     (SELECT id FROM location WHERE name = 'Plaza'),
     (SELECT id FROM location WHERE name = 'Old Grand Hotel')
 );
-INSERT INTO path(a, b) VALUES (
+INSERT INTO path(start_id, destination_id) VALUES (
     (SELECT id FROM location WHERE name = 'Old Grand Hotel'),
     (SELECT id FROM location WHERE name = 'Plaza')
+);
+
+INSERT INTO path(start_id, destination_id) VALUES (
+    (SELECT id FROM location WHERE name = 'Old Grand Hotel'),
+    (SELECT id FROM location WHERE name = 'Hotel Basement')
+);
+INSERT INTO path(start_id, destination_id) VALUES (
+    (SELECT id FROM location WHERE name = 'Hotel Basement'),
+    (SELECT id FROM location WHERE name = 'Old Grand Hotel')
 );
 
 INSERT INTO session(code, current_location_id, active)

@@ -26,7 +26,7 @@ from flask_sqlalchemy import SQLAlchemy as SQLAlchemyBase
 class SQLAlchemy(SQLAlchemyBase):
     def apply_pool_defaults(self, flask_app, options):
         SQLAlchemyBase.apply_pool_defaults(self, flask_app, options)
-        # options["echo"] = True
+        options["echo"] = True
         options["pool_pre_ping"] = True
 
 

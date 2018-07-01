@@ -19,13 +19,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -->
 <!DOCTYPE html>
 <html>
-    <head>
-        <link rel="stylesheet" type="text/css" href="style.css" />
-    </head>
-    <body>
-        <div class="master-container">
-            <h1>pOrtals::reconLIVE:AV</h1>
-            <p>Logged out. Click <a href="/login">here</a> to log in.</p>
-        </div>
-    </body>
+<head>
+    <title>pOrtals::reconLIVE:AV::guideControls</title>
+
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <b>Current location:</b> <em>{{ active_session.current_location.name }}</em>
+    <br />
+    <br /> <b>Adjacent locations:</b>
+    <ul>
+        {% for loc in adjacent_locations %}
+        <li><a href="guide_controls.html?new_location={{ loc.id }}">{{ loc.name }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
 </html>

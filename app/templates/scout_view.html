@@ -25,16 +25,21 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         <link rel="stylesheet" type="text/css" href="style.css" />
     </head>
     <body>
-        <h1>pOrtals::reconLIVE:AV</h1>
+        <div class="master-container">
+            <h1>pOrtals::reconLIVE:AV</h1>
 
-        <p>Status: <span id="connection-status"></span>.
-            Click <a href="/logout">here</a> to log out.</p>
+            <p>Status: <span id="connection-status"></span>.
+                Session: <em>{{ active_session.code if active_session.code else 'N/A' }}</em>.
+                Click <a href="/logout">here</a> to log out.</p>
 
-        {% include 'chat_view.html' %}
+            <div class="scout-chat-container">
+                {% include 'chat_view.html' %}
+            </div>
 
-        <script src="lib/jquery-3.3.1.min.js"></script>
-        <script src="lib/socket.io.js"></script>
+            <script src="lib/jquery-3.3.1.min.js"></script>
+            <script src="lib/socket.io.js"></script>
 
-        <script src="portals.js"></script>
+            <script src="portals.js"></script>
+        </div>
     </body>
 </html>

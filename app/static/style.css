@@ -18,9 +18,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+html {
+    margin: 0px;
+    padding: 0px;
+}
+
 body {
     color: #333333;
     font-family: monospace;
+    font-size: 9pt;
+    margin: 0px;
+    padding: 0px;
 }
 
 a {
@@ -30,8 +38,20 @@ a:visited {
     color: #777777;
 }
 
+h3 {
+    margin: 0px;
+    padding: 0px;
+}
+
 textarea {
+    font-family: inherit;
     line-height: 1.5em;
+    font-size: 9pt;
+}
+
+input {
+    font-family: inherit;
+    font-size: 9pt;
 }
 
 .connected {
@@ -41,3 +61,79 @@ textarea {
 .disconnected {
     color: red;
 }
+
+.master-container {
+    padding: 5px;
+}
+
+.guide-main-layout {
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+.guide-chat-container {
+    overflow: hidden;
+    margin-top: 0px;
+    margin-left: 0px;
+    margin-bottom: 0px;
+    margin-right: 2.5px;
+    padding: 5px;
+    border: 1px solid black;
+    width: 50%;
+}
+
+.guide-controls-container {
+    overflow: hidden;
+    margin-top: 0px;
+    margin-left: 2.5px;
+    margin-bottom: 0px;
+    margin-right: 0px;
+    padding: 0px;
+    border: 1px solid black;
+    width: 50%;
+}
+
+.guide-controls-container h3 {
+    padding: 5px;
+}
+
+.guide-controls-container iframe {
+    width: 100%;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin: 0px;
+    height: calc(100% - 50px);
+    border: none;
+}
+
+.scout-chat-container {
+    width: 100%;
+}
+
+#chat-input {
+    margin: 0px;
+    padding: 0px;
+    width: calc(100% - 100px);
+    height: 25px;
+    border: none;
+}
+
+#chat-input:focus {
+    outline:none !important;
+    outline-width: 0;
+}
+
+#chat-messages {
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: calc(100% - 25px);
+    resize: none;
+    border: none;
+}
+

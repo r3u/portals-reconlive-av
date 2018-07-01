@@ -47,6 +47,13 @@ class Location(db.Model):
     world = relationship("World")
 
 
+class Path(db.Model):
+    start_id = db.Column(db.Integer, db.ForeignKey(Location.id), primary_key=True)
+    destination_id = db.Column(db.Integer, db.ForeignKey(Location.id), primary_key=True)
+    start = relationship("Location", foreign_keys=[start_id])
+    destination = relationship("Location", foreign_keys=[destination_id])
+
+
 class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.VARCHAR(length=255), nullable=False)

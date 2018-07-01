@@ -19,7 +19,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-from flask import request, redirect
+from flask import request, redirect, abort
 from flask import send_file, render_template
 from flask_login import (LoginManager, current_user, login_user, logout_user)
 from flask_socketio import emit, join_room, disconnect
@@ -29,7 +29,8 @@ from app import app, socketio, bcrypt
 from model import Actor, ChatlogEntry
 from services.session_service import get_active_session
 from services.chat_service import load_chat_log, save_log_entry
-from decorators import public_endpoint
+from services.navigation_service import get_adjacent_locations, update_location
+from decorators import public_endpoint, guide_only
 
 ROOM = 'portals'
 
@@ -42,6 +43,9 @@ def check_valid_login():
     if (not current_user.is_authenticated and
             not getattr(app.view_functions[request.endpoint], 'is_public', False)):
         return redirect('/login')
+    if (getattr(current_user, 'role', None) != 'guide' and
+            getattr(app.view_functions[request.endpoint], 'guide_only', False)):
+        return abort(401)
 
 
 @login_manager.user_loader
@@ -58,7 +62,7 @@ def login():
         query = Actor.query.filter(Actor.name == username)
         try:
             actor = query.one()
-            if (password is not None and bcrypt.check_password_hash(actor.password, password)):
+            if password is not None and bcrypt.check_password_hash(actor.password, password):
                 login_user(actor)
                 return redirect('/')
         except NoResultFound:
@@ -75,12 +79,39 @@ def logout():
     return render_template('logout.html')
 
 
+def render_guide_view():
+    return render_template('guide_view.html',
+                           active_session=get_active_session())
+
+
+def render_scout_view():
+    return render_template('scout_view.html',
+                           active_session=get_active_session())
+
+
 @app.route('/')
 def index():
     if current_user.role == 'guide':
-        return render_template('guide_view.html')
+        return render_guide_view()
     else:
-        return render_template('scout_view.html')
+        return render_scout_view()
+
+
+@guide_only
+@app.route('/guide_controls.html')
+def guide_controls():
+    new_location_id = request.args.get('new_location')
+    active_session = get_active_session()
+    if new_location_id:
+        update_location(new_location_id)
+        active_session = get_active_session()
+        msg = "YOU ARE IN THE {0}".format(active_session.current_location.name.upper())
+        ent = save_log_entry(active_session, current_user, msg)
+        emit('messages', [rest_chat_msg(ent)], room=ROOM, namespace='/chat')
+    adjacent_locations = get_adjacent_locations(active_session.current_location_id)
+    return render_template('guide_controls.html',
+                           active_session=active_session,
+                           adjacent_locations=adjacent_locations)
 
 
 @public_endpoint

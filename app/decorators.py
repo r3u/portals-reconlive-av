@@ -40,3 +40,8 @@ def nocache(view):
 def public_endpoint(fn):
     fn.is_public = True
     return fn
+
+
+def guide_only(fn):
+    fn.guide_only = True
+    return fn
