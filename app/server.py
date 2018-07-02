@@ -19,6 +19,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
+import eventlet
+eventlet.monkey_patch()
+
 from flask import request, redirect, abort
 from flask import send_file, render_template
 from flask_login import (LoginManager, current_user, login_user, logout_user)
