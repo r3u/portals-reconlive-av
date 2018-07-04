@@ -65,6 +65,29 @@ CREATE TABLE chatlog_entry(
 );
 
 
+DROP TABLE IF EXISTS media_asset CASCADE;
+CREATE TABLE media_asset(
+    id SERIAL PRIMARY KEY,
+    filename TEXT NOT NULL,
+    content BYTEA NOT NULL,
+    mime_type TEXT NOT NULL
+);
+
+
+DROP TABLE IF EXISTS tag CASCADE;
+CREATE TABLE tag(
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+
+DROP TABLE IF EXISTS media_asset_tags CASCADE;
+CREATE TABLE media_asset_tags(
+    media_asset_id INT NOT NULL REFERENCES media_asset(id),
+    tag_id INT NOT NULL REFERENCES tag(id)
+);
+
+
 -- test data --
 
 -- guide default password: guide

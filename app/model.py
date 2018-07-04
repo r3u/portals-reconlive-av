@@ -20,7 +20,7 @@
 
 from flask_login import UserMixin
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy.dialects.postgresql import ENUM, BYTEA
 
 from db import db
 
@@ -69,3 +69,10 @@ class ChatlogEntry(db.Model):
     message = db.Column(db.Text, nullable=False)
     session = relationship("Session")
     actor = relationship("Actor")
+
+
+class MediaAsset(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.Text, nullable=False)
+    content = db.Column(BYTEA, nullable=False)
+    mime_type = db.Column(db.Text, nullable=False)
