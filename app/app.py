@@ -37,6 +37,7 @@ if app.config['SECRET_KEY'] is None:
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'postgresql+psycopg2://portals:portals@localhost:5432/portals'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = '/var/lib/portals/uploads'
 
 socketio = SocketIO(app)
 bcrypt = Bcrypt(app)

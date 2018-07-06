@@ -74,5 +74,6 @@ class ChatlogEntry(db.Model):
 class MediaAsset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.Text, nullable=False)
+    hash_sha256 = db.Column(db.VARCHAR(length=64), nullable=False)
     content = db.Column(BYTEA, nullable=False)
     mime_type = db.Column(db.Text, nullable=False)

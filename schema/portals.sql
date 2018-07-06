@@ -69,8 +69,10 @@ DROP TABLE IF EXISTS media_asset CASCADE;
 CREATE TABLE media_asset(
     id SERIAL PRIMARY KEY,
     filename TEXT NOT NULL,
+    hash_sha256 VARCHAR(64) NOT NULL,
     content BYTEA NOT NULL,
-    mime_type TEXT NOT NULL
+    mime_type TEXT NOT NULL,
+    date_created TIMESTAMP NOT NULL DEFAULT now()
 );
 
 

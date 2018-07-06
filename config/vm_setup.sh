@@ -19,7 +19,9 @@ sudo setcap 'cap_net_bind_service=+ep' $(readlink -f $(which python3))
 sudo useradd -M portals --shell /bin/false
 sudo usermod -L portals
 
-mkdir /etc/portals
+sudo mkdir -p /var/lib/portals/uploads
+sudo chown -R portals:portals /var/lib/portals
+sudo mkdir /etc/portals
 sudo bash -c "/usr/bin/env python3 /workspace/util/genenv.py > /etc/portals/environment"
 sudo ln -s /workspace/config/portals.service /lib/systemd/system/
 

@@ -22,18 +22,24 @@
 import eventlet
 eventlet.monkey_patch()
 
-from flask import request, redirect, abort
+from flask import request, redirect, abort, flash
 from flask import send_file, render_template
 from flask_login import (LoginManager, current_user, login_user, logout_user)
 from flask_socketio import emit, join_room, disconnect
 from sqlalchemy.orm.exc import NoResultFound
 
 from app import app, socketio, bcrypt
-from model import Actor, ChatlogEntry
+from model import Actor, ChatlogEntry, MediaAsset
 from services.session_service import get_active_session
 from services.chat_service import load_chat_log, save_log_entry
 from services.navigation_service import get_adjacent_locations, update_location
+from services.asset_service import save_asset
 from decorators import public_endpoint, guide_only
+
+import pathlib
+import uuid
+import os
+import io
 
 ROOM = 'portals'
 
@@ -115,6 +121,43 @@ def guide_controls():
     return render_template('guide_controls.html',
                            active_session=active_session,
                            adjacent_locations=adjacent_locations)
+
+@guide_only
+@app.route('/asset_manager.html', methods=['GET', 'POST'])
+def asset_manager():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        if not file or file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        suffix = pathlib.Path(file.filename).suffix
+        temp_filename = str(uuid.uuid4()) + suffix
+        temp_filepath = os.path.join(app.config['UPLOAD_FOLDER'], temp_filename)
+        file.save(temp_filepath)
+        try:
+            with open(temp_filepath, 'rb') as fp:
+                data = fp.read()
+            save_asset(file.filename, data)
+            return redirect(request.url)
+        finally:
+            os.remove(temp_filepath)
+    return render_template('asset_manager.html')
+
+
+@public_endpoint
+@app.route('/media_asset/<int:asset_id>')
+def download_media_asset(asset_id):
+    asset = MediaAsset.query.get(int(asset_id))
+    if not asset:
+        return abort(404)
+    return send_file(
+        io.BytesIO(asset.content),
+        mimetype=asset.mime_type,
+        as_attachment=True,
+        attachment_filename=asset.filename)
 
 
 @public_endpoint
