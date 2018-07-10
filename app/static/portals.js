@@ -46,8 +46,9 @@ function chatFormat(actor, message) {
 }
 
 $(function() {
-    var currentSession = null
-    socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
+    var currentSession = null;
+    var socket_port = 8080;
+    socket = io.connect('http://' + document.domain + ':' + socket_port + '/chat');
     setConnectionStatus("connecting");
 
     socket.on('connect', function() {

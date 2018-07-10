@@ -23,7 +23,8 @@ sudo mkdir -p /var/lib/portals/uploads
 sudo chown -R portals:portals /var/lib/portals
 sudo mkdir /etc/portals
 sudo bash -c "/usr/bin/env python3 /workspace/util/genenv.py > /etc/portals/environment"
-sudo ln -s /workspace/config/portals.service /lib/systemd/system/
+sudo ln -s /workspace/config/portals-web.service /lib/systemd/system/
+sudo ln -s /workspace/config/portals-chat.service /lib/systemd/system/
 
 sudo -u postgres createdb portals
 echo 'CREATE EXTENSION IF NOT EXISTS "pg_trgm";' | sudo -u postgres psql portals
@@ -33,5 +34,7 @@ echo 'CREATE SCHEMA portals AUTHORIZATION portals;' | sudo -u postgres psql port
 sudo -u portals psql < /workspace/schema/portals.sql
 
 sudo systemctl daemon-reload
-sudo systemctl enable portals
-sudo systemctl restart portals
+sudo systemctl enable portals-web
+sudo systemctl enable portals-chat
+sudo systemctl restart portals-web
+sudo systemctl restart portals-chat

@@ -19,16 +19,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-import eventlet
-eventlet.monkey_patch()
-
 from flask import request, redirect, abort, flash
 from flask import send_file, render_template
 from flask_login import (LoginManager, current_user, login_user, logout_user)
-from flask_socketio import emit, join_room, disconnect
 from sqlalchemy.orm.exc import NoResultFound
 
-from app import app, socketio, bcrypt
+from app import app, bcrypt
 from model import Actor, ChatlogEntry, MediaAsset
 from services.session_service import get_active_session
 from services.chat_service import load_chat_log, save_log_entry
@@ -40,8 +36,6 @@ import pathlib
 import uuid
 import os
 import io
-
-ROOM = 'portals'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -116,7 +110,7 @@ def guide_controls():
         active_session = get_active_session()
         msg = "YOU ARE IN THE {0}".format(active_session.current_location.name.upper())
         ent = save_log_entry(active_session, current_user, msg)
-        emit('messages', [rest_chat_msg(ent)], room=ROOM, namespace='/chat')
+        #emit('messages', [rest_chat_msg(ent)], room=ROOM, namespace='/chat')
     adjacent_locations = get_adjacent_locations(active_session.current_location_id)
     return render_template('guide_controls.html',
                            active_session=active_session,
@@ -175,31 +169,5 @@ def rest_chat_msg(ent: ChatlogEntry):
     }
 
 
-@socketio.on('joined', namespace='/chat')
-def joined(_message):
-    if not current_user.is_authenticated:
-        return disconnect()
-    join_room(ROOM)
-    active_session = get_active_session()
-    if not active_session:
-        app.logger.warn("Message ignored: No active session")
-        return
-    messages = [rest_chat_msg(ent) for ent in load_chat_log(active_session.id)]
-    emit('messages', messages, room=request.sid)
-
-
-@socketio.on('text', namespace='/chat')
-def text(message):
-    if not current_user.is_authenticated:
-        return disconnect()
-    message_text = message['message']
-    active_session = get_active_session()
-    if not active_session:
-        app.logger.warn("Message ignored: No active session")
-        return
-    ent = save_log_entry(active_session, current_user, message_text)
-    emit('messages', [rest_chat_msg(ent)], room=ROOM)
-
-
 if __name__ == "__main__":
-    socketio.run(app, host='0.0.0.0', port=80, debug=True)
+    app.run(debug=True)

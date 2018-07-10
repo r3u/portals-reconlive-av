@@ -19,7 +19,6 @@
 #
 
 from flask import Flask
-from flask_socketio import SocketIO
 from flask_bcrypt import Bcrypt
 
 import os
@@ -39,7 +38,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = \
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = '/var/lib/portals/uploads'
 
-socketio = SocketIO(app)
 bcrypt = Bcrypt(app)
 
 
