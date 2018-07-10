@@ -27,7 +27,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from app import app, bcrypt
 from model import Actor, ChatlogEntry, MediaAsset
 from services.session_service import get_active_session
-from services.chat_service import load_chat_log, save_log_entry
+from services.chat_service import save_log_entry
 from services.navigation_service import get_adjacent_locations, update_location
 from services.asset_service import save_asset
 from decorators import public_endpoint, guide_only
@@ -36,13 +36,18 @@ import pathlib
 import uuid
 import os
 import io
+import requests
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+EVENT_ENDPOINT = 'http://127.0.0.1:8080/event.json'
+
 
 @app.before_request
 def check_valid_login():
+    if request.endpoint is None:
+        return
     if (not current_user.is_authenticated and
             not getattr(app.view_functions[request.endpoint], 'is_public', False)):
         return redirect('/login')
@@ -110,7 +115,9 @@ def guide_controls():
         active_session = get_active_session()
         msg = "YOU ARE IN THE {0}".format(active_session.current_location.name.upper())
         ent = save_log_entry(active_session, current_user, msg)
-        #emit('messages', [rest_chat_msg(ent)], room=ROOM, namespace='/chat')
+        res = requests.post(EVENT_ENDPOINT, json=rest_chat_msg(ent))
+        if not res.ok:
+            app.logger.error("Failed to post event, status code: {0}".format(res.status_code))
     adjacent_locations = get_adjacent_locations(active_session.current_location_id)
     return render_template('guide_controls.html',
                            active_session=active_session,

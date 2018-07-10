@@ -22,25 +22,17 @@
 import eventlet
 eventlet.monkey_patch()
 
-from flask import request, redirect, abort, flash
-from flask import send_file, render_template
-from flask_login import (LoginManager, current_user, login_user, logout_user)
+from flask import request, abort
+from flask_login import (LoginManager, current_user)
 from flask_socketio import emit, join_room, disconnect
-from sqlalchemy.orm.exc import NoResultFound
 
-from app import app, bcrypt
+from app import app
 from app_socketio import socketio
-from model import Actor, ChatlogEntry, MediaAsset
+from model import Actor, ChatlogEntry
 from services.session_service import get_active_session
 from services.chat_service import load_chat_log, save_log_entry
-from services.navigation_service import get_adjacent_locations, update_location
-from services.asset_service import save_asset
-from decorators import public_endpoint, guide_only
 
-import pathlib
-import uuid
-import os
-import io
+import ipaddress
 
 ROOM = 'portals'
 
@@ -50,6 +42,10 @@ login_manager.init_app(app)
 
 @app.before_request
 def check_valid_login():
+    if request.endpoint is None:
+        return
+    if ipaddress.ip_address(request.remote_addr).is_loopback:
+        return
     if (not current_user.is_authenticated and
             not getattr(app.view_functions[request.endpoint], 'is_public', False)):
         return abort(401)
@@ -98,5 +94,12 @@ def text(message):
     emit('messages', [rest_chat_msg(ent)], room=ROOM)
 
 
+@app.route('/event.json', methods=['POST'])
+def post_event():
+    ent = request.get_json()
+    emit('messages', [ent], room=ROOM, namespace='/chat')
+    return '', 204
+
+
 if __name__ == "__main__":
-    socketio.run(app, host='0.0.0.0', port=8080)
+    socketio.run(app, host='0.0.0.0', port=8080, debug=True)
