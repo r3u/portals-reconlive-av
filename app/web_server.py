@@ -25,12 +25,13 @@ from flask_login import (LoginManager, current_user, login_user, logout_user)
 from sqlalchemy.orm.exc import NoResultFound
 
 from app import app, bcrypt
-from model import Actor, ChatlogEntry, MediaAsset
+from model import Actor, MediaAsset
 from services.session_service import get_active_session
 from services.chat_service import save_log_entry
 from services.navigation_service import get_adjacent_locations, update_location
 from services.asset_service import save_asset
 from decorators import public_endpoint, guide_only
+from rest import rest_chat_msg
 
 import pathlib
 import uuid
@@ -165,15 +166,6 @@ def download_media_asset(asset_id):
 @app.route('/style.css')
 def style_css():
     return send_file('static/style.css')
-
-
-def rest_chat_msg(ent: ChatlogEntry):
-    return {
-        "session_id": ent.session_id,
-        "id": ent.id,
-        "message": ent.message,
-        "actor": ent.actor.name
-    }
 
 
 if __name__ == "__main__":

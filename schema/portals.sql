@@ -34,13 +34,23 @@ CREATE TABLE location(
 
 DROP TABLE IF EXISTS path CASCADE;
 CREATE TABLE path(
+    id SERIAL PRIMARY KEY,
     start_id INTEGER NOT NULL REFERENCES location(id) ON UPDATE CASCADE ON DELETE CASCADE,
     destination_id INTEGER NOT NULL REFERENCES location(id) ON UPDATE CASCADE ON DELETE CASCADE,
-    PRIMARY KEY (start_id, destination_id)
+    UNIQUE (start_id, destination_id)
 );
 CREATE INDEX path_start_id_idx ON path(start_id);
 CREATE INDEX path_destination_id_idx ON path(destination_id);
 ALTER TABLE path ADD CONSTRAINT path_check_no_self_loops CHECK (start_id <> destination_id);
+
+
+DROP TABLE path_description;
+CREATE TABLE path_description(
+    id SERIAL PRIMARY KEY,
+    path_id INTEGER NOT NULL REFERENCES path(id),
+    description TEXT,
+    date_created TIMESTAMP NOT NULL DEFAULT now()
+);
 
 
 DROP TABLE IF EXISTS session CASCADE;
@@ -90,8 +100,6 @@ CREATE TABLE media_asset_tags(
 );
 
 
--- test data --
-
 -- guide default password: guide
 INSERT INTO actor(name, role, password)
 VALUES (
@@ -105,32 +113,3 @@ INSERT INTO actor(name, role, password) VALUES (
     'scout',
     '$2y$12$k90XEfRb7O7rVnvpo05ixOgV8NIfqlNh06zQZrKaQLaArMzoHM4hW'
 );
-
-INSERT INTO world(name) VALUES('Test World');
-
-INSERT INTO location(name, world_id) VALUES ('Plaza', (SELECT id FROM world WHERE name = 'Test World'));
-INSERT INTO location(name, world_id) VALUES ('Old Grand Hotel', (SELECT id FROM world WHERE name = 'Test World'));
-INSERT INTO location(name, world_id) VALUES ('Hotel Basement', (SELECT id FROM world WHERE name = 'Test World'));
-
-INSERT INTO path(start_id, destination_id) VALUES (
-    (SELECT id FROM location WHERE name = 'Plaza'),
-    (SELECT id FROM location WHERE name = 'Old Grand Hotel')
-);
-INSERT INTO path(start_id, destination_id) VALUES (
-    (SELECT id FROM location WHERE name = 'Old Grand Hotel'),
-    (SELECT id FROM location WHERE name = 'Plaza')
-);
-
-INSERT INTO path(start_id, destination_id) VALUES (
-    (SELECT id FROM location WHERE name = 'Old Grand Hotel'),
-    (SELECT id FROM location WHERE name = 'Hotel Basement')
-);
-INSERT INTO path(start_id, destination_id) VALUES (
-    (SELECT id FROM location WHERE name = 'Hotel Basement'),
-    (SELECT id FROM location WHERE name = 'Old Grand Hotel')
-);
-
-INSERT INTO session(code, current_location_id, active)
-VALUES ('TestSession1',
-        (SELECT id FROM world WHERE name = 'Test World'),
-        true);

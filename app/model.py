@@ -48,10 +48,18 @@ class Location(db.Model):
 
 
 class Path(db.Model):
-    start_id = db.Column(db.Integer, db.ForeignKey(Location.id), primary_key=True)
-    destination_id = db.Column(db.Integer, db.ForeignKey(Location.id), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    start_id = db.Column(db.Integer, db.ForeignKey(Location.id))
+    destination_id = db.Column(db.Integer, db.ForeignKey(Location.id))
     start = relationship("Location", foreign_keys=[start_id])
     destination = relationship("Location", foreign_keys=[destination_id])
+
+
+class PathDescription(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    path_id = db.Column(db.Integer, db.ForeignKey(Path.id))
+    description = db.Column(db.TEXT)
+    path = relationship("Path")
 
 
 class Session(db.Model):

@@ -28,9 +28,10 @@ from flask_socketio import emit, join_room, disconnect
 
 from app import app
 from app_socketio import socketio
-from model import Actor, ChatlogEntry
+from model import Actor
 from services.session_service import get_active_session
 from services.chat_service import load_chat_log, save_log_entry
+from rest import rest_chat_msg
 
 import ipaddress
 
@@ -57,15 +58,6 @@ def check_valid_login():
 @login_manager.user_loader
 def load_user(user_id):
     return Actor.query.get(int(user_id))
-
-
-def rest_chat_msg(ent: ChatlogEntry):
-    return {
-        "session_id": ent.session_id,
-        "id": ent.id,
-        "message": ent.message,
-        "actor": ent.actor.name
-    }
 
 
 @socketio.on('joined', namespace='/chat')
