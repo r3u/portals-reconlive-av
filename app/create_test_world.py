@@ -24,6 +24,11 @@ plaza_to_hotel_desc = add(PathDescription(
     description="YOU ARE IN THE HOTEL. THERE'S A DOOR TO THE BASEMENT IN FRONT OF YOU."
 ))
 
+hotel_to_plaza_desc = add(PathDescription(
+    path=hotel_to_plaza,
+    description="YOU ARE IN THE PLAZA, FACING THE HOTEL."
+))
+
 test_session = add(Session(code='TestSession1', active=True, current_location=hotel))
 
 db.session.commit()

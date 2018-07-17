@@ -33,6 +33,8 @@ echo "CREATE ROLE portals LOGIN PASSWORD 'portals' NOINHERIT NOCREATEDB;" | sudo
 echo 'CREATE SCHEMA portals AUTHORIZATION portals;' | sudo -u postgres psql portals
 sudo -u portals psql < /workspace/schema/portals.sql
 
+sudo -u portals python3 /workspace/app/create_test_world.py
+
 sudo systemctl daemon-reload
 sudo systemctl enable portals-web
 sudo systemctl enable portals-chat

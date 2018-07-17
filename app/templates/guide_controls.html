@@ -25,15 +25,35 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 <body>
-    <b>Current location:</b> <em>{{ active_session.current_location.name }}</em>
-    <br />
-    <br /> <b>Adjacent locations:</b>
+    <b>Current Location:</b> <em>{{ active_session.current_location.name }}</em>
+    <br /><br /><hr />
+    <br /> <b>Adjacent Locations:</b>
     <ul>
         {% for loc in adjacent_locations %}
-        <li><a href="guide_controls.html?new_location={{ loc.id }}">{{ loc.name }}</a></li>
+        <li>
+            <a class="navigation-link" href="#"
+               data-start-id="{{ active_session.current_location.id }}"
+               data-destination-id="{{ loc.id }}"
+               data-destination-name="{{ loc.name }}"
+               >
+                {{ loc.name }}
+            </a>
+        </li>
         {% endfor %}
     </ul>
 
-    <textarea class="guide-description-editor"></textarea>
+    <hr /><br />
+    <b>Next Location: </b><span id="next-location">None selected</span>
+    <br /><br />
+    <hr /><br />
+    <b>Description Editor </b><i>(click an adjacent location to load description)</i>
+    </br /></br />
+    <textarea class="guide-description-editor" readonly></textarea>
+    </br /></br />
+    <a id="update-and-go" href="#" data-start-id="{{ active_session.current_location.id }}"
+        data-destination-id='' style="visibility: hidden">Update And Go</a>
+
+    <script src="lib/jquery-3.3.1.min.js"></script>
+    <script src="guide_controls.js"></script>
 </body>
 </html>

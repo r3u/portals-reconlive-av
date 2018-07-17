@@ -20,18 +20,19 @@
 #
 
 from flask import request, redirect, abort, flash
-from flask import send_file, render_template
+from flask import send_file, render_template, jsonify
 from flask_login import (LoginManager, current_user, login_user, logout_user)
 from sqlalchemy.orm.exc import NoResultFound
 
 from app import app, bcrypt
-from model import Actor, MediaAsset
+from model import Actor, MediaAsset, Path, PathDescription
 from services.session_service import get_active_session
 from services.chat_service import save_log_entry
-from services.navigation_service import get_adjacent_locations, update_location
+from services.navigation_service import get_adjacent_locations
 from services.asset_service import save_asset
 from decorators import public_endpoint, guide_only
 from rest import rest_chat_msg
+from db import db
 
 import pathlib
 import uuid
@@ -107,18 +108,58 @@ def index():
 
 
 @guide_only
+@app.route('/path_description.json')
+def path_description():
+    start_id = int(request.args.get('start_id'))
+    destination_id = int(request.args.get('destination_id'))
+    pd = PathDescription \
+        .query \
+        .join(PathDescription.path) \
+        .filter(Path.start_id == start_id, Path.destination_id == destination_id) \
+        .order_by(PathDescription.id.desc()) \
+        .first()
+    if pd is None:
+        return jsonify({'status': 'error', 'message': 'Path description not found'}), 404
+    return jsonify({'status': 'ok', 'description': pd.description})
+
+
+@guide_only
+@app.route('/move.json', methods=['POST'])
+def move():
+    data = request.get_json()
+    active_session = get_active_session()
+
+    path = Path \
+        .query \
+        .filter(Path.start_id == data['startId'], Path.destination_id == data['destinationId']) \
+        .one()
+    old_description = PathDescription \
+        .query \
+        .filter(PathDescription.path == path) \
+        .order_by(PathDescription.id.desc()) \
+        .first()
+    if old_description is not None and data['newDescription'] != old_description.description:
+        new_description = PathDescription(
+            description=data['newDescription'],
+            path=path
+        )
+        db.session.add(new_description)
+
+    active_session.current_location_id = data['destinationId']
+    db.session.add(active_session)
+    db.session.commit()
+
+    ent = save_log_entry(active_session, current_user, data['newDescription'])
+    res = requests.post(EVENT_ENDPOINT, json=rest_chat_msg(ent))
+    if not res.ok:
+        app.logger.error("Failed to post event, status code: {0}".format(res.status_code))
+    return '', 204
+
+
+@guide_only
 @app.route('/guide_controls.html')
 def guide_controls():
-    new_location_id = request.args.get('new_location')
     active_session = get_active_session()
-    if new_location_id:
-        update_location(new_location_id)
-        active_session = get_active_session()
-        msg = "YOU ARE IN THE {0}".format(active_session.current_location.name.upper())
-        ent = save_log_entry(active_session, current_user, msg)
-        res = requests.post(EVENT_ENDPOINT, json=rest_chat_msg(ent))
-        if not res.ok:
-            app.logger.error("Failed to post event, status code: {0}".format(res.status_code))
     adjacent_locations = get_adjacent_locations(active_session.current_location_id)
     return render_template('guide_controls.html',
                            active_session=active_session,
