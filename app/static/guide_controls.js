@@ -12,7 +12,6 @@ $(function() {
         $.get(url, function(data) {
             var updateAndGoEl = $('#update-and-go');
             updateAndGoEl.css('visibility', 'visible');
-            console.log(destinationId);
             updateAndGoEl.data('destination-id', destinationId);
             var editorEl = $('.guide-description-editor');
             editorEl.removeAttr("readonly");
