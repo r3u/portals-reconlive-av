@@ -59,6 +59,9 @@ $(function() {
 
     socket.on('messages', function(messages) {
         messages.forEach(function(entry) {
+            if (entry.event_type !== 'message') {
+                return;
+            }
             if (currentSession === null) {
                 currentSession = entry.session_id;
             } else if (currentSession !== entry.session_id) {

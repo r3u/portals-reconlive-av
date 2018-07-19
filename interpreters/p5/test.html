@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <script type="text/javascript" src="lib/socket.io.js"></script>
+    <script type="text/javascript" src="portals-events.js"></script>
+
+    <script type="text/javascript">
+        portalsConnect(function(message) {
+            console.log(message);
+        });
+    </script>
+</body>
+</html>

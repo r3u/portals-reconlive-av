@@ -31,7 +31,7 @@ from services.chat_service import save_log_entry
 from services.navigation_service import get_adjacent_locations
 from services.asset_service import save_asset
 from decorators import public_endpoint, guide_only
-from rest import rest_chat_msg
+from rest import rest_chat_msg, rest_navigation_msg
 from db import db
 
 import pathlib
@@ -150,10 +150,15 @@ def move():
     db.session.commit()
 
     ent = save_log_entry(active_session, current_user, data['newDescription'])
-    res = requests.post(EVENT_ENDPOINT, json=rest_chat_msg(ent))
+    post_event(rest_navigation_msg(path, active_session.id))
+    post_event(rest_chat_msg(ent))
+    return '', 204
+
+
+def post_event(json):
+    res = requests.post(EVENT_ENDPOINT, json=json)
     if not res.ok:
         app.logger.error("Failed to post event, status code: {0}".format(res.status_code))
-    return '', 204
 
 
 @guide_only

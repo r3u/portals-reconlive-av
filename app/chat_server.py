@@ -25,6 +25,7 @@ eventlet.monkey_patch()
 from flask import request, abort
 from flask_login import (LoginManager, current_user)
 from flask_socketio import emit, join_room, disconnect
+from flask_cors import CORS
 
 from app import app
 from app_socketio import socketio
@@ -39,6 +40,7 @@ ROOM = 'portals'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+CORS(app)
 
 
 @app.before_request
@@ -62,8 +64,6 @@ def load_user(user_id):
 
 @socketio.on('joined', namespace='/chat')
 def joined(_message):
-    if not current_user.is_authenticated:
-        return disconnect()
     join_room(ROOM)
     active_session = get_active_session()
     if not active_session:
