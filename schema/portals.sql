@@ -37,6 +37,7 @@ CREATE TABLE path(
     id SERIAL PRIMARY KEY,
     start_id INTEGER NOT NULL REFERENCES location(id) ON UPDATE CASCADE ON DELETE CASCADE,
     destination_id INTEGER NOT NULL REFERENCES location(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    description TEXT NOT NULL,
     UNIQUE (start_id, destination_id)
 );
 CREATE INDEX path_start_id_idx ON path(start_id);
@@ -44,11 +45,11 @@ CREATE INDEX path_destination_id_idx ON path(destination_id);
 ALTER TABLE path ADD CONSTRAINT path_check_no_self_loops CHECK (start_id <> destination_id);
 
 
-DROP TABLE path_description;
-CREATE TABLE path_description(
+DROP TABLE location_info;
+CREATE TABLE location_info(
     id SERIAL PRIMARY KEY,
-    path_id INTEGER NOT NULL REFERENCES path(id),
-    description TEXT,
+    location_id INTEGER NOT NULL REFERENCES location(id),
+    description TEXT NOT NULL,
     date_created TIMESTAMP NOT NULL DEFAULT now()
 );
 
@@ -59,6 +60,7 @@ CREATE TABLE session(
     code VARCHAR(255) NOT NULL,
     active boolean NOT NULL DEFAULT false,
     current_location_id INTEGER NOT NULL REFERENCES location(id),
+    previous_location_id INTEGER NOT NULL REFERENCES location(id),
     date_created TIMESTAMP NOT NULL DEFAULT now(),
     UNIQUE(code)
 );

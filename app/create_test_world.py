@@ -1,5 +1,5 @@
 from db import db
-from model import World, Location, Path, PathDescription, Session
+from model import World, Location, Path, Session
 
 
 def add(obj):
@@ -9,26 +9,39 @@ def add(obj):
 
 world = add(World(name='Test World'))
 
+portal = add(Location(name='Portal', world=world))
+
 plaza = add(Location(name='Plaza', world=world))
 hotel = add(Location(name='Old Grand Hotel', world=world))
 basement = add(Location(name='Hotel Basement', world=world))
 
-plaza_to_hotel = add(Path(start=plaza, destination=hotel))
-hotel_to_plaza = add(Path(start=hotel, destination=plaza))
-
-hotel_to_basement = add(Path(start=hotel, destination=basement))
-basement_to_hotel = add(Path(start=basement, destination=hotel))
-
-plaza_to_hotel_desc = add(PathDescription(
-    path=plaza_to_hotel,
+portal_to_hotel = add(Path(
+    start=portal, destination=hotel,
     description="YOU ARE IN THE HOTEL. THERE'S A DOOR TO THE BASEMENT IN FRONT OF YOU."
 ))
 
-hotel_to_plaza_desc = add(PathDescription(
-    path=hotel_to_plaza,
+plaza_to_hotel = add(Path(
+    start=plaza, destination=hotel,
+    description="YOU ARE IN THE HOTEL. THERE'S A DOOR TO THE BASEMENT IN FRONT OF YOU."
+))
+
+hotel_to_plaza = add(Path(
+    start=hotel, destination=plaza,
     description="YOU ARE IN THE PLAZA, FACING THE HOTEL."
 ))
 
-test_session = add(Session(code='TestSession1', active=True, current_location=hotel))
+hotel_to_basement = add(Path(
+    start=hotel, destination=basement,
+    description="YOU ARE IN THE BASEMENT. THERE ARE STAIRS UP TO THE HOTEL LOBBY BEHIND YOU."
+
+))
+basement_to_hotel = add(Path(
+    start=basement, destination=hotel,
+    description="YOU ARE IN THE HOTEL LOBBY. THERE'S AN EXIT TO THE PLAZA IN FRONT OF YOU."
+))
+
+test_session = add(Session(
+    code='TestSession1', active=True,
+    current_location=hotel, previous_location=portal))
 
 db.session.commit()

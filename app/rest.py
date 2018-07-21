@@ -11,10 +11,10 @@ def rest_chat_msg(ent: ChatlogEntry):
     }
 
 
-def rest_navigation_msg(path: Path, session_id: int):
+def rest_navigation_msg(start_id: int, destination_id: int, session_id: int):
     return {
         "event_type": "navigation",
         "session_id": session_id,
-        "start_id": path.start_id,
-        "destination_id": path.destination_id
+        "start_id": start_id,
+        "destination_id": destination_id
     }

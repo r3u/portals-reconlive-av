@@ -26,8 +26,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 </head>
 <body>
     <b>Current Location:</b> <em>{{ active_session.current_location.name }}</em>
+    <br />
+    <b>Previous Location:</b> <em>{{ active_session.previous_location.name }}</em>
     <br /><br /><hr />
-    <br /> <b>Adjacent Locations:</b>
+    <br /> <b>Description</b>
+    <p><i><span id="path-description">{{ description }}</span></i></p>
+    <br />
+    <a class="send-to-chat-link" href="#">Send to chat</a>
+    <br /><br />
+    <hr />
+    <br /> <b>Paths</b>
     <ul>
         {% for loc in adjacent_locations %}
         <li>
@@ -43,15 +51,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     </ul>
 
     <hr /><br />
-    <b>Next Location: </b><span id="next-location">None selected</span>
-    <br /><br />
-    <hr /><br />
-    <b>Description Editor </b><i>(click an adjacent location to load description)</i>
+    <b>Location Info</b>
     </br /></br />
-    <textarea class="guide-description-editor" readonly></textarea>
-    </br /></br />
-    <a id="update-and-go" href="#" data-start-id="{{ active_session.current_location.id }}"
-        data-destination-id='' style="visibility: hidden">Update And Go</a>
+    <textarea class="location-info-editor" readonly></textarea>
 
     <script src="lib/jquery-3.3.1.min.js"></script>
     <script src="guide_controls.js"></script>

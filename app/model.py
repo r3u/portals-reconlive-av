@@ -51,15 +51,16 @@ class Path(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     start_id = db.Column(db.Integer, db.ForeignKey(Location.id))
     destination_id = db.Column(db.Integer, db.ForeignKey(Location.id))
+    description = db.Column(db.TEXT)
     start = relationship("Location", foreign_keys=[start_id])
     destination = relationship("Location", foreign_keys=[destination_id])
 
 
-class PathDescription(db.Model):
+class LocationInfo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    path_id = db.Column(db.Integer, db.ForeignKey(Path.id))
+    location_id = db.Column(db.Integer, db.ForeignKey(Location.id))
     description = db.Column(db.TEXT)
-    path = relationship("Path")
+    location = relationship("Location")
 
 
 class Session(db.Model):
@@ -67,7 +68,9 @@ class Session(db.Model):
     code = db.Column(db.VARCHAR(length=255), nullable=False)
     active = db.Column(db.Boolean, nullable=False)
     current_location_id = db.Column(db.Integer, db.ForeignKey(Location.id), nullable=False)
-    current_location = relationship("Location")
+    previous_location_id = db.Column(db.Integer, db.ForeignKey(Location.id), nullable=False)
+    current_location = relationship("Location", foreign_keys=[current_location_id])
+    previous_location = relationship("Location", foreign_keys=[previous_location_id])
 
 
 class ChatlogEntry(db.Model):
