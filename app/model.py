@@ -19,7 +19,7 @@
 #
 
 from flask_login import UserMixin
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.dialects.postgresql import ENUM, BYTEA
 
 from db import db
@@ -86,5 +86,5 @@ class MediaAsset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.Text, nullable=False)
     hash_sha256 = db.Column(db.VARCHAR(length=64), nullable=False)
-    content = db.Column(BYTEA, nullable=False)
+    content = deferred(db.Column(BYTEA, nullable=False))
     mime_type = db.Column(db.Text, nullable=False)

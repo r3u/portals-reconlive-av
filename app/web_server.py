@@ -186,7 +186,9 @@ def asset_manager():
             return redirect(request.url)
         finally:
             os.remove(temp_filepath)
-    return render_template('asset_manager.html')
+
+    media_assets = MediaAsset.query.all()
+    return render_template('asset_manager.html', media_assets=media_assets)
 
 
 @public_endpoint

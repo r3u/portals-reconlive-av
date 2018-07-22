@@ -23,9 +23,21 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     <title>pOrtals::reconLIVE:AV::assetManager</title>
 
     <link rel="stylesheet" type="text/css" href="style.css" />
+
+    <style>
+        table {
+            border: 1px solid;
+            border-collapse:collapse;
+            width: 100%;
+        }
+        td, th {
+            border: 1px solid;
+        }
+    </style>
 </head>
 <body>
-    <p>Asset manager</p>
+    <b>Upload Asset</b>
+    <br /><br />
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
@@ -37,5 +49,26 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         <input type=file name=file>
         <input type=submit value=Upload>
     </form>
+    <br />
+    <hr />
+    <br />
+    <b>Assets</b>
+    <br /><br />
+    <table>
+        <tr>
+            <th>id</th>
+            <th>filename</th>
+            <th>mime type</th>
+        </tr>
+        {% for media_asset in media_assets %}
+            <tr>
+                <td>{{ media_asset.id }}</td>
+                <td>{{ media_asset.filename }}</td>
+                <td>{{ media_asset.mime_type }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <br /><br />
+    <a href="/guide_controls.html">Guide Controls</a>
 </body>
 </html>
