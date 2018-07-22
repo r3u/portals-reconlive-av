@@ -33,6 +33,7 @@ $(function() {
         e.preventDefault();
         var description = $('#path-description').html();
         sendToChat(description);
+        $(e.target).css('visibility', 'hidden');
     });
 });
 
