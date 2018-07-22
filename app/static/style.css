@@ -43,6 +43,16 @@ h3 {
     padding: 0px;
 }
 
+table {
+    border: 1px solid;
+    border-collapse:collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid;
+}
+
 textarea {
     font-family: inherit;
     line-height: 1.5em;
@@ -111,7 +121,7 @@ input {
 .location-info-editor {
     padding: 0px;
     margin: 0px;
-    height: 150px;
+    height: 100px;
     width: calc(100% - 2px);
     scroll: auto;
     text-transform: uppercase;
