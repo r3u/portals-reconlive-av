@@ -1,5 +1,5 @@
 from db import db
-from model import MediaAsset
+from model import MediaAsset, LocationMediaAsset
 from magic import Magic
 
 import pathlib
@@ -16,3 +16,9 @@ def save_asset(filename, data):
     db.session.add(asset)
     db.session.commit()
 
+
+def location_media_assets(location_id):
+    return [l.media_asset for l in LocationMediaAsset
+            .query
+            .filter(LocationMediaAsset.location_id == location_id)
+            .all()]

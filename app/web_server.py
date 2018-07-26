@@ -20,7 +20,7 @@
 #
 
 from flask import request, redirect, abort, flash
-from flask import send_file, render_template
+from flask import send_file, render_template, jsonify
 from flask_login import (LoginManager, current_user, login_user, logout_user)
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -28,11 +28,11 @@ from app import app, bcrypt
 from model import Actor, MediaAsset
 from services.session_service import get_active_session
 from services.navigation_service import get_adjacent_locations
-from services.asset_service import save_asset
+from services.asset_service import save_asset, location_media_assets
 from services.path_service import get_path
 from services.chat_service import save_log_entry
 from decorators import public_endpoint, guide_only
-from rest import rest_navigation_msg, rest_chat_msg
+from rest import rest_navigation_msg, rest_chat_msg, rest_media_asset
 from db import db
 
 import pathlib
@@ -202,6 +202,17 @@ def download_media_asset(asset_id):
         mimetype=asset.mime_type,
         as_attachment=True,
         attachment_filename=asset.filename)
+
+
+@public_endpoint
+@app.route('/media_asset')
+def list_media_asset():
+    location_id = request.args.get('location_id')
+    if location_id:
+        assets = location_media_assets(location_id)
+    else:
+        assets = MediaAsset.query.all()
+    return jsonify([rest_media_asset(a) for a in assets])
 
 
 @public_endpoint

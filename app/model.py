@@ -88,3 +88,11 @@ class MediaAsset(db.Model):
     hash_sha256 = db.Column(db.VARCHAR(length=64), nullable=False)
     content = deferred(db.Column(BYTEA, nullable=False))
     mime_type = db.Column(db.Text, nullable=False)
+
+
+class LocationMediaAsset(db.Model):
+    location_id = db.Column(db.Integer, db.ForeignKey(Location.id), primary_key=True)
+    media_asset_id = db.Column(db.Integer, db.ForeignKey(MediaAsset.id), primary_key=True)
+    location = relationship("Location")
+    media_asset = relationship("MediaAsset")
+

@@ -102,6 +102,14 @@ CREATE TABLE media_asset_tags(
 );
 
 
+DROP TABLE IF EXISTS location_media_asset CASCADE;
+CREATE TABLE location_media_asset(
+    location_id INT NOT NULL REFERENCES location(id),
+    media_asset_id INT NOT NULL REFERENCES media_asset(id),
+    PRIMARY KEY(location_id, media_asset_id)
+);
+
+
 -- guide default password: guide
 INSERT INTO actor(name, role, password)
 VALUES (

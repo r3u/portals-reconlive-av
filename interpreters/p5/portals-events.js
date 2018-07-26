@@ -20,7 +20,7 @@
 
 function portalsConnect(onMessage) {
     var currentSession = null;
-    var socketAddr = "192.168.50.42";
+    var socketAddr = "192.168.1.7";
     var socketPort = 8080;
 
     socket = io.connect('http://' + socketAddr + ':' + socketPort + '/chat');
