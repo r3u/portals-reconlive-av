@@ -6,11 +6,25 @@
 <body>
     <script type="text/javascript" src="lib/socket.io.js"></script>
     <script type="text/javascript" src="portals-events.js"></script>
+    <script type="text/javascript" src="lib/p5.min.js"></script>
 
     <script type="text/javascript">
         portalsConnect(function(message) {
             console.log(message);
         });
+        var m, e;
+
+        function setup() {
+            portalsConnect(function(message) {
+                m = (message.hasOwnProperty("message") ? message.message : null);
+                e = (message.hasOwnProperty("event_type") ? message.event_type : null);
+            });
+        }
+        function draw() {
+            if (e && e === "NAVIGATION") {
+                console.log(e);
+            }
+        }
     </script>
 </body>
 </html>
