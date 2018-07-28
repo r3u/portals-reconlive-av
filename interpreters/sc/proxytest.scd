@@ -1,54 +1,49 @@
 (
-s.options.numInputBusChannels = 0;
-s.boot;
-
-p = ProxySpace.new(s);
-p.quant = 1;
-p.fadeTime = 10;
-
-p[\track1].play;
-p[\track2].play;
-p[\track3].play;
-
-)
-
-(
 ~sounds = Dictionary.new;
-~testSoundsDir = thisProcess.nowExecutingPath.dirname +/+ "testsounds";
 ~wysingSoundsDir = "/Users/henry/Desktop/WYSING";
 
 ~loadsound = {
-	| basedir, filename |
-	var buf = Buffer.read(s, basedir +/+ filename);
-	~sounds.add(filename -> buf);
+	| basedir, filename, action |
+	var buf;
+	("INFO: Loading file " ++ filename).postln;
+	Buffer.read(s, basedir +/+ filename, action: {
+		|buf|
+		~sounds.add(filename -> buf);
+		action.value(buf);
+	});
 };
+
+s.options.numInputBusChannels = 0;
+s.options.sampleRate = 48000;
+s.boot;
+s.waitForBoot({
+	"INFO: pOrtals init started".postln;
+
+	p = ProxySpace.new(s);
+	p.quant = 1;
+	p.fadeTime = 10;
+
+	p[\track1].play;
+	p[\track2].play;
+	p[\track3].play;
+
+	"INFO: Tracks initialized".postln;
+
+	SynthDef(\sampler, { | dur=1, out=0, amp=1.0, rate=1.0,
+		startPos=0, hpf=0, release=5.0, bufnum, numFrames |
+		var absStart = numFrames * startPos;
+		var env = Env.linen(1, dur/2.0, release);
+		var osc = PlayBuf.ar(2, bufnum, startPos: absStart, rate: rate * BufRateScale.kr(bufnum));
+		var sig = osc * EnvGen.ar(env, doneAction: Done.freeSelf) * amp;
+		var filtered = HPF.ar(sig, hpf);
+		Out.ar(out, filtered);
+	}).add;
+
+	"INFO: Instruments initialized".postln;
+
+	"INFO: pOrtals init completed".postln;
+});
 )
-
-(
-~loadsound.value(~wysingSoundsDir, "TreeKeep/TreeKeep_Crackle_001.wav");
-~loadsound.value(~wysingSoundsDir, "TreeKeep/TreeKeep_Stick_001.wav");
-~loadsound.value(~wysingSoundsDir, "TreeKeep/TreeKeep_BugAndLeaf_001.wav");
-~loadsound.value(~wysingSoundsDir, "TheKiln/TheKiln_Gate_001.wav");
-~loadsound.value(~wysingSoundsDir, "TheKiln/TheKiln_Tools_001.wav");
-
-~loadsound.value(~testSoundsDir, "Western.wav");
-~loadsound.value(~testSoundsDir, "YourSound.wav");
-)
-
-
-(
-//m = ProxyMixer(p, numItems: 8)
-
-SynthDef(\sampler, { | dur=1, out=0, amp=1.0, rate=1.0,
-	                   startPos=0, hpf=0, release=5.0, bufnum, numFrames |
-	var absStart = numFrames * startPos;
-	var env = Env.linen(1, dur/2.0, release);
-	var osc = PlayBuf.ar(2, bufnum, startPos: absStart, rate: rate);
-	var sig = osc * EnvGen.ar(env, doneAction: Done.freeSelf) * amp;
-	var filtered = HPF.ar(sig, hpf);
-	Out.ar(out, filtered);
-}).add;
-);
 
 (
 p[\track1] = Pbind(
@@ -69,7 +64,7 @@ p[\track1] = Pbind(
 OSCdef(\playfileHandler, { | msg, time, addr, port |
 	var track = msg[1].asSymbol;
 	var filename = msg[2].asString;
-	var buf;
+	var buf, action;
 
 	if (track == nil) {
 		"Missing parameter 'track'".throw;
@@ -81,40 +76,53 @@ OSCdef(\playfileHandler, { | msg, time, addr, port |
 		("Invalid track: " ++ track).throw;
 	};
 
-	buf = ~sounds[filename];
-	if (buf == nil) {
-		("Could not load buffer for file: " ++ filename).throw;
+	action = { |bufnum|
+		("INFO: Track /" ++ track ++ " playing file: " ++ filename).postln;
+		buf.postln;
+
+		p[track] = Pbind(
+			\instrument, \sampler,
+			\freq, Prand([110, 220, 440, 880], inf),
+			\dur, Prand(#[1, 2, 3, 4, 6, 8, 16]/4, inf),
+			\rate, Pwrand(
+				#[0.25, 0.50, 1.00, 1.50, -0.50, -1.00, -1.50],
+				#[1.00, 3.00, 3.00, 3.00,  1.00,  1.00,  1.00].normalizeSum,
+				inf),
+			\startPos, Pbrown(0.3, 0.7, step: 0.1, length: inf),
+			\bufnum, bufnum,
+			\numFrames, bufnum.numFrames,
+			\release, 5,
+			\amp, 0.2,
+			\hpf, 100
+		);
 	};
 
-	"LOADED BUFFER".postln;
-	buf.postln;
+	buf = ~sounds[filename];
+	if (buf == nil) {
+		~loadsound.value(~wysingSoundsDir, filename, action);
+	} {
+		action.value(buf);
+	};
 
-	p[track] = Pbind(
-		\instrument, \sampler,
-		\freq, Prand([110, 220, 440, 880], inf),
-		\dur, Prand(#[1, 2, 3, 4, 6, 8, 16]/1, inf),
-		\rate, Pwrand(#[0.25, 0.50, 1.00, 1.50, -0.50, -1.00, -1.50],
-			          #[1.00, 3.00, 3.00, 3.00,  1.00,  1.00,  1.00].normalizeSum,
-			          inf),
-		\startPos, Pbrown(0.3, 0.7, step: 0.1, length: inf),
-		\bufnum, buf,
-		\numFrames, buf.numFrames,
-		\release, 3,
-		\amp, 0.2,
-		\hpf, 100
-	);
 
 }, '/playfile' );
 )
 
-
-
 (
-OSCdef(\playfileHandler, { | msg, time, addr, port |
-	var filename = msg[2].asString;
-	~sounds[filename].postln;
+OSCdef(\stop, { | msg, time, addr, port |
+	var track = msg[1].asSymbol;
 
-}, '/playfile' );
+	if (track == nil) {
+		"Missing parameter 'track'".throw;
+	};
+	if (p.at(track).loaded == false) {
+		("Invalid track: " ++ track).throw;
+	};
+
+	p[track] = {};
+
+	("INFO: Stopping track /" ++ track).postln;
+}, '/stop' );
 )
 
 
