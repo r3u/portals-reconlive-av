@@ -21,7 +21,7 @@ s.waitForBoot({
 
 	p = ProxySpace.new(s);
 	p.quant = 1;
-	p.fadeTime = 10;
+	p.fadeTime = 7;
 
 	p[\track1].play;
 	p[\track2].play;
@@ -46,18 +46,37 @@ s.waitForBoot({
 )
 
 (
-p[\track1] = Pbind(
-	\instrument, \sampler,
-	\freq, Prand(#[110, 220, 440, 880], inf),
-	\dur, Prand(#[1, 2, 3, 4, 6, 8, 16]/16, inf),
-	\rate, Prand(#[0.25, 0.5, 1, 1.5, 2.0, -0.5, -1.0, -1.5], inf),
-	\startPos, Pbrown(0.3, 0.7, step: 0.1, length: inf),
-	\bufnum, ~sounds["Western.wav"],
-	\numFrames, ~sounds["Western.wav"],
-	\amp, 0.05,
-	\release, 3,
-	\hpf, 100
-);
+~playfile = {
+	|track, filename|
+	var buf, action;
+
+	action = { |bufnum|
+		("INFO: Track /" ++ track ++ " playing file: " ++ filename).postln;
+		buf.postln;
+
+		p[track] = Pbind(
+			\instrument, \sampler,
+			\freq, Prand([110, 220, 440, 880], inf),
+			\dur, Prand(#[1, 2, 3, 4, 6, 8]/8, inf),
+			\rate, Pwrand(
+				#[0.25, 0.50, 1.00, 1.50, -0.50, -1.00, -1.50],
+				#[1.00, 3.00, 3.00, 3.00,  1.00,  1.00,  1.00].normalizeSum,
+				inf),
+			\startPos, Pbrown(0.3, 0.7, step: 0.1, length: inf),
+			\bufnum, bufnum,
+			\numFrames, bufnum.numFrames,
+			\release, 5,
+			\hpf, 100
+		);
+	};
+
+	buf = ~sounds[filename];
+	if (buf == nil) {
+		~loadsound.value(~wysingSoundsDir, filename, action);
+	} {
+		action.value(buf);
+	};
+};
 )
 
 (
@@ -83,7 +102,7 @@ OSCdef(\playfileHandler, { | msg, time, addr, port |
 		p[track] = Pbind(
 			\instrument, \sampler,
 			\freq, Prand([110, 220, 440, 880], inf),
-			\dur, Prand(#[1, 2, 3, 4, 6, 8, 16]/4, inf),
+			\dur, Prand(#[1, 2, 3, 4, 6, 8]/8, inf),
 			\rate, Pwrand(
 				#[0.25, 0.50, 1.00, 1.50, -0.50, -1.00, -1.50],
 				#[1.00, 3.00, 3.00, 3.00,  1.00,  1.00,  1.00].normalizeSum,
@@ -92,7 +111,6 @@ OSCdef(\playfileHandler, { | msg, time, addr, port |
 			\bufnum, bufnum,
 			\numFrames, bufnum.numFrames,
 			\release, 5,
-			\amp, 0.2,
 			\hpf, 100
 		);
 	};
@@ -109,7 +127,7 @@ OSCdef(\playfileHandler, { | msg, time, addr, port |
 )
 
 (
-OSCdef(\stop, { | msg, time, addr, port |
+OSCdef(\stopHandler, { | msg, time, addr, port |
 	var track = msg[1].asSymbol;
 
 	if (track == nil) {
@@ -125,4 +143,13 @@ OSCdef(\stop, { | msg, time, addr, port |
 }, '/stop' );
 )
 
+
+(
+OSCdef(\navigationHandler, { | msg, time, addr, port |
+	var filename1 = msg[1].asString;
+	if (filename1 != nil) {
+		~playfile.value(\track1, filename1);
+	}
+}, '/navigation' );
+)
 
