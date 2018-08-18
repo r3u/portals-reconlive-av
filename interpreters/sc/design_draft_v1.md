@@ -68,7 +68,7 @@ The OSC responders will be configured automatically when running the boot file.
 
 World parameters will be defined in the boot file and are available to all macros. These parameters will typically be updated by OSC responders (see *Network communication*) but can also be set manually when testing macros.
 
-For example, assume a session parameters called ```\typingSpeed``` is defined. Then it can be used in a macro as follows:
+For example, assume a session parameter called ```\typingSpeed``` is defined. Then it can be used in a macro as follows:
 
 **TODO**: Add code example here.
 
