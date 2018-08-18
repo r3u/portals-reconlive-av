@@ -60,7 +60,7 @@ Now the sine waves will fade in (based on a master fadeTime parameter set in por
 
 Running ```\loadMacro``` manually in SuperCollider is useful for testing out macros and transitions between different macros, but is obviously not good enough for a fully automated performance system. During performances, location changes, world parameter changes, and other types of events will be received via OSC (music-oriented network protocol) from the chat client, so for example a *location change* OSC event responder will call the ```\loadMacro``` function to load a macro mapped to that location.
 
-*Exactly how macros will be chosen based on location is something we can work out later, but it's useful to thing of macros as just being another form of pOrtals asset, which could be mapped to locations, WorldObjects, etc.*
+*Exactly how macros will be chosen based on location is something we can work out later, but it's useful to think of macros as just being another form of pOrtals asset, which could be mapped to locations, WorldObjects, etc.*
 
 The OSC responders will be configured automatically when running the boot file.
 
