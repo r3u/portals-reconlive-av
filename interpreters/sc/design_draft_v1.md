@@ -74,7 +74,7 @@ For example, assume a session parameter called ```\typingSpeed``` is defined. Th
 
 ## Audio Demo
 
-An example of two generative macros, with a macro transitioning happening around 1:15:
+An example of two generative macros, with a macro transition happening around 1:15:
  [reconLIVE-SI-demo-2018-08-18.mp3](https://www.dropbox.com/s/ilhnvlgv5necmx0/reconLIVE-SI-demo-2018-08-18.mp3?dl=0)
 
 
