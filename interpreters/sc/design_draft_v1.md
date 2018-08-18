@@ -35,7 +35,7 @@ Using ProxySpace mechanics, the boot file defines a number of _stereo_ audio tra
 
 #### Sonic environments and transitions
 
-The boot file also defines a function, ```\loadMacro``` which loads SI *macros*. A macro is simply a SuperCollider document that defines what to play on each track. One could thing of this as being similar to the *scenes* in Ableton Live. In addition, macros will be treated like any other asset in pOrtals, meaning that they can be tagged as belonging to locations, World Object and so forth (using .yaml metadata files).
+The boot file also defines a function, ```\loadMacro``` which loads SI *macros*. A macro is simply a SuperCollider document that defines what to play on each track. One could thing of this as being similar to the *scenes* in Ableton Live. In addition, macros will be treated like any other asset in pOrtals, meaning that they can be tagged as belonging to locations, WorldObjects and so forth (using .yaml metadata files).
 
 The following snippet is an example of a very simple SI macro, which plays a sine wave at 440 Hz on track 1 (L+R channel), and a sine wave at 660 Hz on track 2 (L+R channel):
 
