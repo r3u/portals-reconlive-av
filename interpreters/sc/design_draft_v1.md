@@ -58,19 +58,19 @@ Now the sine waves will fade in (based on a master fadeTime parameter set in por
 
 #### Network communication
 
-Running ```\loadMacro``` manually in SuperCollider is useful for testing out macros and transitions between different macros, but is obviously not good enough for a fully automated performance system. During performances, location changes, world parameter changes, and other types of events will be received via OSC (music-oriented network protocol) form the chat client, so for example a *location change* OSC event responder will call the ```\loadMacro``` function to load a macro mapped to that location.
+Running ```\loadMacro``` manually in SuperCollider is useful for testing out macros and transitions between different macros, but is obviously not good enough for a fully automated performance system. During performances, location changes, world parameter changes, and other types of events will be received via OSC (music-oriented network protocol) from the chat client, so for example a *location change* OSC event responder will call the ```\loadMacro``` function to load a macro mapped to that location.
 
-(NOTE: Exactly how macros will be chosen based on location is something we can work out later, but it's useful to thing of macros as just being another form of pOrtals asset, which could be mapped to locations, WorldObjects, etc.).
+*Exactly how macros will be chosen based on location is something we can work out later, but it's useful to thing of macros as just being another form of pOrtals asset, which could be mapped to locations, WorldObjects, etc.*
 
-The OSC responders will be configured automatically by portals_boot.
+The OSC responders will be configured automatically when running the boot file.
 
 #### Session/World parameters
 
-World parameters will be defined in portals_boot and available to all macros. These parameters will typically be updated by OSC responders (see *Network communication*) but can also be set manually when testing macros.
+World parameters will be defined in the boot file and are available to all macros. These parameters will typically be updated by OSC responders (see *Network communication*) but can also be set manually when testing macros.
 
 For example, assume a session parameters called ```\typingSpeed``` is defined. Then it can be used in a macro as follows:
 
-*XXX*: Add example of this
+**TODO**: Add code example here.
 
 ## Audio Demo
 
