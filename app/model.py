@@ -19,19 +19,15 @@
 #
 
 from flask_login import UserMixin
-from sqlalchemy.orm import relationship, deferred
-from sqlalchemy.dialects.postgresql import ENUM, BYTEA
+from sqlalchemy.orm import relationship
 
 from db import db
-
-
-actor_role = ENUM('guide', 'scout', name='actor_role')
 
 
 class Actor(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.VARCHAR(length=255), nullable=False)
-    role = db.Column(actor_role, nullable=False)
+    role = db.Column(db.VARCHAR(length=255), nullable=False)
     password = db.Column(db.VARCHAR(length=255), nullable=False)
 
 
@@ -80,19 +76,4 @@ class ChatlogEntry(db.Model):
     message = db.Column(db.Text, nullable=False)
     session = relationship("Session")
     actor = relationship("Actor")
-
-
-class MediaAsset(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.Text, nullable=False)
-    hash_sha256 = db.Column(db.VARCHAR(length=64), nullable=False)
-    content = deferred(db.Column(BYTEA, nullable=False))
-    mime_type = db.Column(db.Text, nullable=False)
-
-
-class LocationMediaAsset(db.Model):
-    location_id = db.Column(db.Integer, db.ForeignKey(Location.id), primary_key=True)
-    media_asset_id = db.Column(db.Integer, db.ForeignKey(MediaAsset.id), primary_key=True)
-    location = relationship("Location")
-    media_asset = relationship("MediaAsset")
 

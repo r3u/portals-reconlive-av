@@ -1,4 +1,4 @@
-from model import ChatlogEntry, MediaAsset
+from model import ChatlogEntry
 
 
 def rest_chat_msg(ent: ChatlogEntry):
@@ -17,12 +17,4 @@ def rest_navigation_msg(start_id: int, destination_id: int, session_id: int):
         "session_id": session_id,
         "start_id": start_id,
         "destination_id": destination_id
-    }
-
-
-def rest_media_asset(media_asset: MediaAsset):
-    return {
-        "id": media_asset.id,
-        "filename": media_asset.filename,
-        "mime_type": media_asset.mime_type
     }

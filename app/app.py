@@ -33,8 +33,7 @@ if app.config['SECRET_KEY'] is None:
     app.config['SECRET_KEY'] = str(uuid4())
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = \
-    'postgresql+psycopg2://portals:portals@localhost:5432/portals'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///portals.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = '/var/lib/portals/uploads'
 

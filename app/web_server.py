@@ -19,32 +19,23 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-from flask import request, redirect, abort, flash
-from flask import send_file, render_template, jsonify
+from flask import request, redirect, abort
+from flask import send_file, render_template
 from flask_login import (LoginManager, current_user, login_user, logout_user)
 from sqlalchemy.orm.exc import NoResultFound
 
 from app import app, bcrypt
-from model import Actor, MediaAsset
+from model import Actor
 from services.session_service import get_active_session
 from services.navigation_service import get_adjacent_locations
-from services.asset_service import save_asset, location_media_assets
 from services.path_service import get_path
 from services.chat_service import save_log_entry
 from decorators import public_endpoint, guide_only
-from rest import rest_navigation_msg, rest_chat_msg, rest_media_asset
+from rest import rest_navigation_msg, rest_chat_msg
 from db import db
-
-import pathlib
-import uuid
-import os
-import io
-import requests
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-
-EVENT_ENDPOINT = 'http://127.0.0.1:8080/event.json'
 
 
 @app.before_request
@@ -146,9 +137,7 @@ def chatlog_entry():
 
 
 def post_event(json):
-    res = requests.post(EVENT_ENDPOINT, json=json)
-    if not res.ok:
-        app.logger.error("Failed to post event, status code: {0}".format(res.status_code))
+    pass
 
 
 @guide_only
@@ -156,63 +145,14 @@ def post_event(json):
 def guide_controls():
     active_session = get_active_session()
     adjacent_locations = get_adjacent_locations(active_session.current_location_id)
+    app.logger.info("prev=" + str(active_session.previous_location_id))
+    app.logger.info("cur=" + str(active_session.current_location_id))
     path = get_path(active_session.previous_location_id,
                     active_session.current_location_id)
     return render_template('guide_controls.html',
                            active_session=active_session,
                            adjacent_locations=adjacent_locations,
                            description=path.description)
-
-
-@guide_only
-@app.route('/asset_manager.html', methods=['GET', 'POST'])
-def asset_manager():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        if not file or file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        suffix = pathlib.Path(file.filename).suffix
-        temp_filename = str(uuid.uuid4()) + suffix
-        temp_filepath = os.path.join(app.config['UPLOAD_FOLDER'], temp_filename)
-        file.save(temp_filepath)
-        try:
-            with open(temp_filepath, 'rb') as fp:
-                data = fp.read()
-            save_asset(file.filename, data)
-            return redirect(request.url)
-        finally:
-            os.remove(temp_filepath)
-
-    media_assets = MediaAsset.query.all()
-    return render_template('asset_manager.html', media_assets=media_assets)
-
-
-@public_endpoint
-@app.route('/media_asset/<int:asset_id>')
-def download_media_asset(asset_id):
-    asset = MediaAsset.query.get(int(asset_id))
-    if not asset:
-        return abort(404)
-    return send_file(
-        io.BytesIO(asset.content),
-        mimetype=asset.mime_type,
-        as_attachment=True,
-        attachment_filename=asset.filename)
-
-
-@public_endpoint
-@app.route('/media_asset')
-def list_media_asset():
-    location_id = request.args.get('location_id')
-    if location_id:
-        assets = location_media_assets(location_id)
-    else:
-        assets = MediaAsset.query.all()
-    return jsonify([rest_media_asset(a) for a in assets])
 
 
 @public_endpoint
