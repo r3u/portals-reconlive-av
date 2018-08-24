@@ -19,20 +19,28 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
+import eventlet
+eventlet.monkey_patch()
+
 from flask import request, redirect, abort
 from flask import send_file, render_template
 from flask_login import (LoginManager, current_user, login_user, logout_user)
+from flask_socketio import emit, join_room, disconnect
 from sqlalchemy.orm.exc import NoResultFound
 
 from app import app, bcrypt
+from app_socketio import socketio
 from model import Actor
 from services.session_service import get_active_session
 from services.navigation_service import get_adjacent_locations
 from services.path_service import get_path
-from services.chat_service import save_log_entry
+from services.chat_service import save_log_entry, load_chat_log
 from decorators import public_endpoint, guide_only
 from rest import rest_navigation_msg, rest_chat_msg
 from db import db
+
+ROOM = 'portals'
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -113,7 +121,7 @@ def move():
     db.session.add(active_session)
     db.session.commit()
 
-    post_event(rest_navigation_msg(start_id, destination_id, active_session.id))
+    post_event_internal(rest_navigation_msg(start_id, destination_id, active_session.id))
     return '', 204
 
 
@@ -132,12 +140,12 @@ def chatlog_entry():
     message = data['message']
     active_session = get_active_session()
     ent = save_log_entry(active_session, current_user, message)
-    post_event(rest_chat_msg(ent))
+    post_event_internal(rest_chat_msg(ent))
     return '', 204
 
 
-def post_event(json):
-    pass
+def post_event_internal(json):
+    emit('messages', [json], room=ROOM, namespace='/chat')
 
 
 @guide_only
@@ -145,8 +153,6 @@ def post_event(json):
 def guide_controls():
     active_session = get_active_session()
     adjacent_locations = get_adjacent_locations(active_session.current_location_id)
-    app.logger.info("prev=" + str(active_session.previous_location_id))
-    app.logger.info("cur=" + str(active_session.current_location_id))
     path = get_path(active_session.previous_location_id,
                     active_session.current_location_id)
     return render_template('guide_controls.html',
@@ -161,5 +167,36 @@ def style_css():
     return send_file('static/style.css')
 
 
+@socketio.on('joined', namespace='/chat')
+def joined(_message):
+    join_room(ROOM)
+    active_session = get_active_session()
+    if not active_session:
+        app.logger.warn("Message ignored: No active session")
+        return
+    messages = [rest_chat_msg(ent) for ent in load_chat_log(active_session.id)]
+    emit('messages', messages, room=request.sid)
+
+
+@socketio.on('text', namespace='/chat')
+def text(message):
+    if not current_user.is_authenticated:
+        return disconnect()
+    message_text = message['message']
+    active_session = get_active_session()
+    if not active_session:
+        app.logger.warn("Message ignored: No active session")
+        return
+    ent = save_log_entry(active_session, current_user, message_text)
+    emit('messages', [rest_chat_msg(ent)], room=ROOM)
+
+
+@app.route('/event.json', methods=['POST'])
+def post_event():
+    ent = request.get_json()
+    emit('messages', [ent], room=ROOM, namespace='/chat')
+    return '', 204
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, host='0.0.0.0', port=8080, debug=True)
