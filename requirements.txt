@@ -11,12 +11,10 @@ Flask-Login==0.4.1
 Flask-SocketIO==3.0.1
 Flask-SQLAlchemy==2.3.2
 greenlet==0.4.13
-gunicorn==19.9.0
 idna==2.7
 itsdangerous==0.24
 Jinja2==2.10
 MarkupSafe==1.0
-psycopg2-binary==2.7.5
 pycparser==2.18
 python-engineio==2.2.0
 python-magic==0.4.15
