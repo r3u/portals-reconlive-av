@@ -6,7 +6,6 @@ click==6.7
 eventlet==0.23.0
 Flask==1.0.2
 Flask-Bcrypt==0.7.1
-flask-cors==3.0.6
 Flask-Login==0.4.1
 Flask-SocketIO==3.0.1
 Flask-SQLAlchemy==2.3.2
@@ -19,6 +18,7 @@ pycparser==2.18
 python-engineio==2.2.0
 python-magic==0.4.15
 python-socketio==2.0.0
+PyYAML==3.13
 requests==2.19.1
 six==1.11.0
 SQLAlchemy==1.2.8
