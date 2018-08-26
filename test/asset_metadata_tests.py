@@ -10,7 +10,7 @@ def test_load_basic_metadata():
     type: audio
     tags:
       - noise
-      - metal 
+      - metal
     """
     definition = yaml.safe_load(file_contents)
     metadata = AssetMetadata("test.yaml", definition)
@@ -32,7 +32,7 @@ def test_validate_missing_type():
     file_contents = """
     tags:
       - noise
-      - metal 
+      - metal
     """
     definition = yaml.safe_load(file_contents)
     with pytest.raises(AssetMetadataError):
