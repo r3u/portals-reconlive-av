@@ -3,4 +3,4 @@
 set -euo pipefail
 
 cd app
-python -m pytest -q ../test/*.py
+python -m pytest -q ../tests

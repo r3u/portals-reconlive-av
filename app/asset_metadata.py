@@ -2,7 +2,7 @@ import yaml
 import glob
 import os
 
-from typing import List, Dict
+from typing import FrozenSet, Dict
 
 
 class AssetMetadataError(Exception):
@@ -15,8 +15,8 @@ class AssetMetadata:
     def __init__(self, filename: str, definition: dict):
         self.__filename: str = filename
         self.__definition: dict = definition
-        self.__tags: List[str] = []
-        self.__locations: List[str] = []
+        self.__tags: FrozenSet[str] = None
+        self.__locations: FrozenSet[str] = None
         self.__type: str = None
         self.__init(definition)
 
@@ -34,24 +34,39 @@ class AssetMetadata:
         self.__type = definition['type']
         if 'tags' in definition:
             tags = definition['tags']
+            normalized_tags = []
             if type(tags) != list:
                 return self.__init_fail("'tags' is not a list")
             for tag in tags:
                 if type(tag) != str:
                     return self.__init_fail("Invalid tag: {0}".format(tag))
-                self.__tags.append(tag.strip().lower())
-            self.__tags = tags
+                normalized_tags.append(tag.strip().lower())
+            self.__tags = frozenset(normalized_tags)
+        if 'locations' in definition:
+            locations = definition['locations']
+            normalized_locations = []
+            if type(locations) != list:
+                return self.__init_fail("'locations' is not a list")
+            for location in locations:
+                if type(location) != str:
+                    return self.__init_fail("Invalid location: {0}".format(location))
+                normalized_locations.append(location.strip())
+            self.__locations = frozenset(normalized_locations)
 
     @property
-    def filename(self):
+    def filename(self) -> str:
         return self.__filename
 
     @property
-    def type(self):
+    def type(self) -> str:
         return self.__type
 
     @property
-    def tags(self):
+    def locations(self) -> FrozenSet[str]:
+        return self.__locations
+
+    @property
+    def tags(self) -> FrozenSet[str]:
         return self.__tags
 
 
