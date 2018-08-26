@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -euo pipefail
+
+cd app
+python -m pytest -q ../test/*.py

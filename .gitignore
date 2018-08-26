@@ -1,4 +1,7 @@
 .vagrant
 __pycache__
+.pytest_cache
 venv
 .idea
+.DS_Store
+portals.db
