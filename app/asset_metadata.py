@@ -2,7 +2,8 @@ import yaml
 import glob
 import os
 
-from typing import FrozenSet, Dict
+from pathlib import Path
+from typing import FrozenSet, Dict, List
 
 
 class AssetMetadataError(Exception):
@@ -11,9 +12,10 @@ class AssetMetadataError(Exception):
         super().__init__(full_msg)
 
 
-class AssetMetadata:
+class AssetMetadataDef:
     def __init__(self, filename: str, definition: dict):
         self.__filename: str = filename
+        self.__asset_filename:str = Path(filename).stem
         self.__definition: dict = definition
         self.__tags: FrozenSet[str] = None
         self.__locations: FrozenSet[str] = None
@@ -22,6 +24,9 @@ class AssetMetadata:
 
     def __repr__(self):
         return 'AssetMetadata("{0}", {1})'.format(self.__filename, self.__definition)
+
+    def __eq__(self, other: 'AssetMetadataDef'):
+        return other is not None and other.__filename == self.__filename
 
     def __init_fail(self, msg: str):
         raise AssetMetadataError(self.__filename, msg)
@@ -50,12 +55,17 @@ class AssetMetadata:
             for location in locations:
                 if type(location) != str:
                     return self.__init_fail("Invalid location: {0}".format(location))
-                normalized_locations.append(location.strip())
+                normalized_location = location.strip()
+                normalized_locations.append(normalized_location)
             self.__locations = frozenset(normalized_locations)
 
     @property
     def filename(self) -> str:
         return self.__filename
+
+    @property
+    def asset_filename(self) -> str:
+        return self.__asset_filename
 
     @property
     def type(self) -> str:
@@ -69,16 +79,39 @@ class AssetMetadata:
     def tags(self) -> FrozenSet[str]:
         return self.__tags
 
+    @staticmethod
+    def from_file(filename: str) -> 'AssetMetadataDef':
+        with open(filename) as fp:
+            metadata = yaml.safe_load(fp)
+        return AssetMetadataDef(filename, metadata)
 
-def load_asset_metadata(filename: str) -> AssetMetadata:
-    with open(filename) as fp:
-        metadata = yaml.safe_load(fp)
-    return AssetMetadata(filename, metadata)
+
+class AssetMetadata:
+    def __init__(self, definitions: Dict[str, AssetMetadataDef],
+                 by_location_cache: Dict[str, List['AssetMetadataDef']]):
+        self.__definitions = definitions
+        self.__by_location_cache: Dict[str, List['AssetMetadataDef']] = by_location_cache
+
+    @staticmethod
+    def load_from_path(path: str) -> 'AssetMetadata':
+        by_location_cache: Dict[str, List['AssetMetadataDef']] = {}
+        pattern = os.path.join(path, '**', '*.yaml')
+        metadata: Dict[str, AssetMetadataDef] = {}
+        for filename in glob.glob(pattern, recursive=True):
+            asset_metadata_def = AssetMetadataDef.from_file(filename)
+            for location in asset_metadata_def.locations:
+                if location not in by_location_cache:
+                    by_location_cache[location] = []
+                by_location_cache[location].append(asset_metadata_def)
+            metadata[filename] = asset_metadata_def
+        return AssetMetadata(metadata, by_location_cache)
+
+    def by_filename(self, filename):
+        return self.__definitions.get(filename)
+
+    def by_location(self, location_name: str) -> List['AssetMetadataDef']:
+        if location_name not in self.__by_location_cache:
+            return []
+        return list(self.__by_location_cache[location_name])
 
 
-def load_asset_metadata_from_path(path: str) -> Dict[str, AssetMetadata]:
-    pattern = os.path.join(path, '**', '*.yaml')
-    metadata: Dict[str, AssetMetadata] = {}
-    for filename in glob.glob(pattern, recursive=True):
-        metadata[filename] = load_asset_metadata(filename)
-    return metadata
