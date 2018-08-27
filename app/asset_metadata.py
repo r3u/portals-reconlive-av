@@ -2,7 +2,6 @@ import yaml
 import glob
 import os
 
-from pathlib import Path
 from typing import FrozenSet, Dict, List
 
 
@@ -15,7 +14,9 @@ class AssetMetadataError(Exception):
 class AssetMetadataDef:
     def __init__(self, filename: str, definition: dict):
         self.__filename: str = filename
-        self.__asset_filename:str = Path(filename).stem
+        self.__asset_filename: str = os.path.splitext(filename)[0]
+        if not os.path.isfile(self.__asset_filename):
+            raise AssetMetadataError(filename, 'Asset "{0}" does not exists'.format(self.__asset_filename))
         self.__definition: dict = definition
         self.__tags: FrozenSet[str] = None
         self.__locations: FrozenSet[str] = None
@@ -113,5 +114,3 @@ class AssetMetadata:
         if location_name not in self.__by_location_cache:
             return []
         return list(self.__by_location_cache[location_name])
-
-
