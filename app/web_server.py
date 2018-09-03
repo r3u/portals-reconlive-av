@@ -26,6 +26,8 @@ from decorators import public_endpoint, guide_only
 from rest import rest_navigation_msg, rest_chat_msg
 from db import db
 
+from argparse import ArgumentParser
+
 ROOM = 'portals'
 
 
@@ -185,10 +187,15 @@ def post_event():
     return '', 204
 
 
-def init_assets():
-    app.logger.info("Loading assets...")
+def init_assets(asset_dir):
+    app.logger.info("Loading assets from {0}".format(asset_dir))
+    asset_metadata.load_from_path(asset_dir)
 
 
 if __name__ == "__main__":
-    init_assets()
+    parser = ArgumentParser("pOrtals::reconLIVE:AV server")
+    parser.add_argument('--asset-dir', action='store', dest='asset_dir')
+    args = parser.parse_args()
+    if args.asset_dir:
+        init_assets(args.asset_dir)
     socketio.run(app, host='0.0.0.0', port=8080, debug=True)

@@ -24,8 +24,8 @@ class AssetMetadataDef:
         if not os.path.isfile(self.__asset_filename):
             raise AssetMetadataError(filename, 'Asset "{0}" does not exists'.format(self.__asset_filename))
         self.__definition: dict = definition
-        self.__tags: FrozenSet[str] = None
-        self.__locations: FrozenSet[str] = None
+        self.__tags: FrozenSet[str] = frozenset()
+        self.__locations: FrozenSet[str] = frozenset()
         self.__type: str = None
         self.__init(definition)
 

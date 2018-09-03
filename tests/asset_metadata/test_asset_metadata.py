@@ -44,6 +44,8 @@ def test_minimal_file(monkeypatch):
     metadata = AssetMetadataDef("test.wav.yaml", definition)
     assert metadata.filename == "test.wav.yaml"
     assert metadata.type == 'audio'
+    assert len(metadata.locations) == 0
+    assert len(metadata.tags) == 0
 
 
 def test_empty_input_file(monkeypatch):
