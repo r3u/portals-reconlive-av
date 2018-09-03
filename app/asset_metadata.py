@@ -1,3 +1,9 @@
+#
+# This file is part of pOrtals:reconLIVE:AV which is released
+# under version 3 of the GNU General Public License (GPLv3).
+# See the LICENSE file in the project root for more information.
+#
+
 import yaml
 import glob
 import os
@@ -88,13 +94,11 @@ class AssetMetadataDef:
 
 
 class AssetMetadata:
-    def __init__(self, definitions: Dict[str, AssetMetadataDef],
-                 by_location_cache: Dict[str, List['AssetMetadataDef']]):
-        self.__definitions = definitions
-        self.__by_location_cache: Dict[str, List['AssetMetadataDef']] = by_location_cache
+    def __init__(self):
+        self.__definitions: Dict[str, AssetMetadataDef] = {}
+        self.__by_location_cache: Dict[str, List['AssetMetadataDef']] = {}
 
-    @staticmethod
-    def load_from_path(path: str) -> 'AssetMetadata':
+    def load_from_path(self, path: str) -> None:
         by_location_cache: Dict[str, List['AssetMetadataDef']] = {}
         pattern = os.path.join(path, '**', '*.yaml')
         metadata: Dict[str, AssetMetadataDef] = {}
@@ -105,7 +109,8 @@ class AssetMetadata:
                     by_location_cache[location] = []
                 by_location_cache[location].append(asset_metadata_def)
             metadata[filename] = asset_metadata_def
-        return AssetMetadata(metadata, by_location_cache)
+        self.__definitions = metadata
+        self.__by_location_cache = by_location_cache
 
     def by_filename(self, filename):
         return self.__definitions.get(filename)
@@ -114,3 +119,6 @@ class AssetMetadata:
         if location_name not in self.__by_location_cache:
             return []
         return list(self.__by_location_cache[location_name])
+
+
+asset_metadata: AssetMetadata = AssetMetadata()

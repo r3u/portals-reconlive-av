@@ -154,7 +154,8 @@ def test_missing_asset_file(monkeypatch):
 def test_load_asset_metadata_path():
     root = os.path.dirname(os.path.realpath(__file__))
     test_assets_path = os.path.join(root, "test_assets_good")
-    metadata: AssetMetadata = AssetMetadata.load_from_path(test_assets_path)
+    metadata = AssetMetadata()
+    metadata.load_from_path(test_assets_path)
 
     expected_file1 = os.path.join(test_assets_path, "TestLocation1", "sound", "testmacro.scd.yaml")
     expected_file2 = os.path.join(test_assets_path, "TestLocation2", "sound", "testmacro1.scd.yaml")
@@ -193,5 +194,6 @@ def test_load_asset_metadata_path():
 def test_find_by_non_existing_location():
     root = os.path.dirname(os.path.realpath(__file__))
     test_assets_path = os.path.join(root, "test_assets_good")
-    metadata: AssetMetadata = AssetMetadata.load_from_path(test_assets_path)
+    metadata = AssetMetadata()
+    metadata.load_from_path(test_assets_path)
     assert len(metadata.by_location("blah")) == 0

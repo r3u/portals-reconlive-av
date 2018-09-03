@@ -1,22 +1,8 @@
 #!/usr/bin/env python3
 #
-# pOrtals::reconLIVE:AV
-#
-# Copyright (C) 2018  Rachael Melanson
-# Copyright (C) 2018  Henry Rodrick
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# This file is part of pOrtals::reconLIVE:AV which is released
+# under version 3 of the GNU General Public License (GPLv3).
+# See the LICENSE file in the project root for more information.
 #
 
 import eventlet
@@ -35,6 +21,7 @@ from services.session_service import get_active_session
 from services.navigation_service import get_adjacent_locations
 from services.path_service import get_path
 from services.chat_service import save_log_entry, load_chat_log
+from asset_metadata import asset_metadata
 from decorators import public_endpoint, guide_only
 from rest import rest_navigation_msg, rest_chat_msg
 from db import db
@@ -198,5 +185,10 @@ def post_event():
     return '', 204
 
 
+def init_assets():
+    app.logger.info("Loading assets...")
+
+
 if __name__ == "__main__":
+    init_assets()
     socketio.run(app, host='0.0.0.0', port=8080, debug=True)
