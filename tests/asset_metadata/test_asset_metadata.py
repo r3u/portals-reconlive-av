@@ -2,7 +2,7 @@ import pytest
 import yaml
 import os
 
-from asset_metadata import AssetMetadata, AssetMetadataDef, AssetMetadataError
+from services.asset_metadata_service import AssetMetadata, AssetMetadataDef, AssetMetadataError
 
 
 def test_load_basic_metadata(monkeypatch):

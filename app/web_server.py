@@ -22,7 +22,7 @@ from services.navigation_service import get_adjacent_locations, move_to
 from services.path_service import get_path
 from services.chat_service import save_log_entry, load_chat_log
 from services.event_service import room, namespace, post_event
-from asset_metadata import asset_metadata
+from services.asset_metadata_service import asset_metadata
 from decorators import public_endpoint, guide_only
 from rest import rest_chat_msg
 
