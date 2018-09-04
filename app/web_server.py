@@ -18,17 +18,15 @@ from app import app, bcrypt
 from app_socketio import socketio
 from model import Actor
 from services.session_service import get_active_session
-from services.navigation_service import get_adjacent_locations
+from services.navigation_service import get_adjacent_locations, move_to
 from services.path_service import get_path
 from services.chat_service import save_log_entry, load_chat_log
+from services.event_service import room, namespace, post_event
 from asset_metadata import asset_metadata
 from decorators import public_endpoint, guide_only
-from rest import rest_navigation_msg, rest_chat_msg
-from db import db
+from rest import rest_chat_msg
 
 from argparse import ArgumentParser
-
-ROOM = 'portals'
 
 
 login_manager = LoginManager()
@@ -100,17 +98,8 @@ def index():
 @app.route('/move.json', methods=['POST'])
 def move():
     data = request.get_json()
-    active_session = get_active_session()
-
-    start_id = active_session.current_location_id
     destination_id = data['destinationId']
-
-    active_session.previous_location_id = start_id
-    active_session.current_location_id = destination_id
-    db.session.add(active_session)
-    db.session.commit()
-
-    post_event_internal(rest_navigation_msg(start_id, destination_id, active_session.id))
+    move_to(destination_id)
     return '', 204
 
 
@@ -129,12 +118,8 @@ def chatlog_entry():
     message = data['message']
     active_session = get_active_session()
     ent = save_log_entry(active_session, current_user, message)
-    post_event_internal(rest_chat_msg(ent))
+    post_event(rest_chat_msg(ent))
     return '', 204
-
-
-def post_event_internal(json):
-    emit('messages', [json], room=ROOM, namespace='/chat')
 
 
 @guide_only
@@ -156,9 +141,9 @@ def style_css():
     return send_file('static/style.css')
 
 
-@socketio.on('joined', namespace='/chat')
+@socketio.on('joined', namespace=namespace)
 def joined(_message):
-    join_room(ROOM)
+    join_room(room)
     active_session = get_active_session()
     if not active_session:
         app.logger.warn("Message ignored: No active session")
@@ -167,7 +152,7 @@ def joined(_message):
     emit('messages', messages, room=request.sid)
 
 
-@socketio.on('text', namespace='/chat')
+@socketio.on('text', namespace=namespace)
 def text(message):
     if not current_user.is_authenticated:
         return disconnect()
@@ -177,14 +162,7 @@ def text(message):
         app.logger.warn("Message ignored: No active session")
         return
     ent = save_log_entry(active_session, current_user, message_text)
-    emit('messages', [rest_chat_msg(ent)], room=ROOM)
-
-
-@app.route('/event.json', methods=['POST'])
-def post_event():
-    ent = request.get_json()
-    emit('messages', [ent], room=ROOM, namespace='/chat')
-    return '', 204
+    emit('messages', [rest_chat_msg(ent)], room=room)
 
 
 def init_assets(asset_dir):
