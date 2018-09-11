@@ -23,6 +23,7 @@ pycparser==2.18
 pytest==3.7.2
 python-engineio==2.2.0
 python-magic==0.4.15
+python-osc==1.6.8
 python-socketio==2.0.0
 PyYAML==3.13
 requests==2.19.1

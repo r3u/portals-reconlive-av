@@ -21,7 +21,7 @@ from services.session_service import get_active_session
 from services.navigation_service import get_adjacent_locations, move_to
 from services.path_service import get_path
 from services.chat_service import save_log_entry, load_chat_log
-from services.event_service import room, namespace, post_event
+from services.event_service import room, namespace, handle_message
 from services.asset_metadata_service import asset_metadata
 from decorators import public_endpoint, guide_only
 from rest import rest_chat_msg
@@ -117,8 +117,11 @@ def chatlog_entry():
         return '', 400
     message = data['message']
     active_session = get_active_session()
+    if not active_session:
+        app.logger.error("No active session")
+        return '', 500
     ent = save_log_entry(active_session, current_user, message)
-    post_event(rest_chat_msg(ent))
+    handle_message(ent)
     return '', 204
 
 
@@ -126,6 +129,9 @@ def chatlog_entry():
 @app.route('/guide_controls.html')
 def guide_controls():
     active_session = get_active_session()
+    if not active_session:
+        app.logger.error("No active session")
+        return '', 500
     adjacent_locations = get_adjacent_locations(active_session.current_location_id)
     path = get_path(active_session.previous_location_id,
                     active_session.current_location_id)
@@ -162,7 +168,7 @@ def text(message):
         app.logger.warn("Message ignored: No active session")
         return
     ent = save_log_entry(active_session, current_user, message_text)
-    emit('messages', [rest_chat_msg(ent)], room=room)
+    handle_message(ent)
 
 
 def init_assets(asset_dir):

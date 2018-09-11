@@ -4,11 +4,12 @@
 # See the LICENSE file in the project root for more information.
 #
 
+from typing import Optional
 from sqlalchemy.orm.exc import NoResultFound
 from model import Session
 
 
-def get_active_session() -> Session:
+def get_active_session() -> Optional[Session]:
     try:
         return Session.query.filter(Session.active == True).one()
     except NoResultFound:

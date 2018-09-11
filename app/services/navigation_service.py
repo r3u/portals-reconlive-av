@@ -6,8 +6,7 @@
 
 from model import Path
 from services.session_service import get_active_session
-from services.event_service import post_event
-from rest import rest_navigation_msg
+from services.event_service import handle_navigation
 from db import db
 
 
@@ -23,5 +22,4 @@ def move_to(destination_id: int):
     active_session.current_location_id = destination_id
     db.session.add(active_session)
     db.session.commit()
-
-    post_event(rest_navigation_msg(start_id, destination_id, active_session.id))
+    handle_navigation(start_id, destination_id, active_session.id)
