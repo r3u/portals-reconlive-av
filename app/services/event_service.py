@@ -1,29 +1,11 @@
-from flask_socketio import emit
 from typing import List
+from event_listeners.base import BaseEventListener
+from event_listeners.socketio import SocketIOEventListener
+from event_listeners.supercollider import SuperColliderEventListener
 from model import ChatlogEntry
-from rest import rest_chat_msg, rest_navigation_msg
-
-room = 'portals'
-namespace = '/chat'
 
 
-class BaseEventListener:
-    def on_message(self, msg: ChatlogEntry):
-        pass
-
-    def on_navigation(self, start_id: int, destination_id: int, session_id: int):
-        pass
-
-
-class SocketIOEventListener(BaseEventListener):
-    def on_message(self, msg: ChatlogEntry):
-        emit('messages', [rest_chat_msg(msg)], room=room, namespace=namespace)
-
-    def on_navigation(self, start_id: int, destination_id: int, session_id: int):
-        emit('messages', [rest_navigation_msg(start_id, destination_id, session_id)], room=room, namespace=namespace)
-
-
-listeners: List[BaseEventListener] = [SocketIOEventListener()]
+listeners: List[BaseEventListener] = [SocketIOEventListener(), SuperColliderEventListener()]
 
 
 def handle_message(msg: ChatlogEntry):

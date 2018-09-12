@@ -21,8 +21,9 @@ from services.session_service import get_active_session
 from services.navigation_service import get_adjacent_locations, move_to
 from services.path_service import get_path
 from services.chat_service import save_log_entry, load_chat_log
-from services.event_service import room, namespace, handle_message
 from services.asset_metadata_service import asset_metadata
+from services.event_service import handle_message
+from event_listeners.socketio import room, namespace
 from decorators import public_endpoint, guide_only
 from rest import rest_chat_msg
 
