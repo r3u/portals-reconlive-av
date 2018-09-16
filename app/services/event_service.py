@@ -1,11 +1,8 @@
 from typing import List
 from event_listeners.base import BaseEventListener
-from event_listeners.socketio import SocketIOEventListener
-from event_listeners.supercollider import SuperColliderEventListener
 from model import ChatlogEntry
 
-
-listeners: List[BaseEventListener] = [SocketIOEventListener(), SuperColliderEventListener()]
+listeners: List[BaseEventListener] = []
 
 
 def handle_message(msg: ChatlogEntry):

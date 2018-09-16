@@ -22,14 +22,17 @@ from services.navigation_service import get_adjacent_locations, move_to
 from services.path_service import get_path
 from services.chat_service import save_log_entry, load_chat_log
 from services.asset_metadata_service import asset_metadata
-from services.event_service import handle_message
-from event_listeners.socketio import room, namespace
+from services.event_service import handle_message, listeners
+from event_listeners.socketio import room, namespace, SocketIOEventListener
+from event_listeners.supercollider import SuperColliderEventListener
 from decorators import public_endpoint, guide_only
 from rest import rest_chat_msg
 
 from argparse import ArgumentParser
 
 
+listeners.append(SocketIOEventListener())
+listeners.append(SuperColliderEventListener())
 login_manager = LoginManager()
 login_manager.init_app(app)
 

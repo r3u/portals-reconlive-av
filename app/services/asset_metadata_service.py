@@ -18,10 +18,10 @@ class AssetMetadataError(Exception):
 
 
 class AssetMetadataDef:
-    def __init__(self, filename: str, definition: dict):
+    def __init__(self, path: str, filename: str, definition: dict):
         self.__filename: str = filename
         self.__asset_filename: str = os.path.splitext(filename)[0]
-        if not os.path.isfile(self.__asset_filename):
+        if not os.path.isfile(os.path.join(path, self.__asset_filename)):
             raise AssetMetadataError(filename, 'Asset "{0}" does not exists'.format(self.__asset_filename))
         self.__definition: dict = definition
         self.__tags: FrozenSet[str] = frozenset()
@@ -87,10 +87,10 @@ class AssetMetadataDef:
         return self.__tags
 
     @staticmethod
-    def from_file(filename: str) -> 'AssetMetadataDef':
-        with open(filename) as fp:
+    def from_file(path: str, filename: str) -> 'AssetMetadataDef':
+        with open(os.path.join(path, filename)) as fp:
             metadata = yaml.safe_load(fp)
-        return AssetMetadataDef(filename, metadata)
+        return AssetMetadataDef(path, filename, metadata)
 
 
 class AssetMetadata:
@@ -103,7 +103,11 @@ class AssetMetadata:
         pattern = os.path.join(path, '**', '*.yaml')
         metadata: Dict[str, AssetMetadataDef] = {}
         for filename in glob.glob(pattern, recursive=True):
-            asset_metadata_def = AssetMetadataDef.from_file(filename)
+            filename = filename.replace(path, '', 1)
+            if filename.startswith('/'):
+                filename = filename.replace('/', '', 1)
+            print("Loading metadata file: {0}".format(filename))
+            asset_metadata_def = AssetMetadataDef.from_file(path, filename)
             for location in asset_metadata_def.locations:
                 if location not in by_location_cache:
                     by_location_cache[location] = []
