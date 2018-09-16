@@ -19,11 +19,9 @@ class SuperColliderEventListener(BaseEventListener):
 
     def on_navigation(self, start_id: int, destination_id: int, session_id: int):
         destination: Location = get_location(destination_id)
-        print(destination.name)
         metadata = [m for m in asset_metadata.by_location(destination.name)
                     if m.type == 'supercollider']
 
         if len(metadata) > 0:
             m: AssetMetadataDef = random.choice(metadata)
-            print(m.asset_filename)
             self.__client.send_message('/load_macro', m.asset_filename)

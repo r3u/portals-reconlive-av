@@ -1,20 +1,19 @@
 (
-~soundsDir = "/Users/henry/Dropbox/reconlive/worlds/wysingtest";
 ~tracks = [\track1, \track2, \track3, \track4];
 
 Fdef(\loadSoundFile, {
 	| filename, action |
 	("INFO: Loading file " ++ filename).postln;
-	Buffer.read(s, ~soundsDir +/+ filename, action: {
+	Buffer.read(s, thisProcess.nowExecutingPath.dirname +/+ filename, action: {
 		|buf|
 		action.value(buf);
 	});
 });
 
 Fdef(\loadMacro, {
-	|name|
+	|filename|
 	~tracks.do({ arg track; p[track] = {}; }); // Clear tracks
-	this.executeFile(thisProcess.nowExecutingPath.dirname +/+ name ++ ".scd");
+	this.executeFile("/Users/henry/Documents/workspace/portals-reconlive-av/tests/test_world" +/+ filename);
 });
 
 s.options.numInputBusChannels = 0;
@@ -42,6 +41,17 @@ s.waitForBoot({
 	p[\typingSpeed] = 1.0;
 
 	~tracks.do({ arg track; p[track].play; });
+
+	OSCdef(\loadMacroHandler, {
+		|msg, time, addr, recvPort|
+
+		var macro = msg[1];
+
+		macro.postln;
+		if (macro != nil) {
+			Fdef(\loadMacro).value(macro);
+		};
+	}, '/load_macro');
 });
 )
 
@@ -53,5 +63,4 @@ n.parent.alwaysOnTop_(true);
 ~tracks.do({ arg track; p[track].play; });
 ~tracks.do({ arg track; p[track] = {}; }); // Clear tracks
 
-Fdef(\loadMacro).value("test-macro-1")
-Fdef(\loadMacro).value("test-macro-2")
+// Fdef(\loadMacro).value("hotel_basement/hotel_basement.scd")
