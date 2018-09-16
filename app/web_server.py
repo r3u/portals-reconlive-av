@@ -182,7 +182,7 @@ def init_assets(asset_dir):
 
 if __name__ == "__main__":
     parser = ArgumentParser("pOrtals::reconLIVE:AV server")
-    parser.add_argument('--asset-dir', action='store', dest='asset_dir')
+    parser.add_argument('--asset-dir', action='store', dest='asset_dir', required=True)
     args = parser.parse_args()
     if args.asset_dir:
         init_assets(args.asset_dir)
