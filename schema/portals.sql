@@ -40,7 +40,7 @@ CREATE INDEX path_destination_id_idx ON path(destination_id);
 CREATE TABLE location_info(
     id INTEGER PRIMARY KEY,
     location_id INTEGER NOT NULL REFERENCES location(id),
-    description TEXT NOT NULL,
+    info TEXT NOT NULL,
     date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -10,10 +10,7 @@ Fdef(\loadSoundFile).value("clap.wav", {
 			Prand(#[1, 2, 3, 4, 6, 8]/4, 16),
 			Prand(#[1, 2, 3, 4, 6, 8]/16, 16)
 		], inf),
-		\rate, Pwrand(
-			#[0.25, 0.50, 1.00, 1.50, -0.50, -1.00, -1.50],
-			#[1.00, 3.00, 3.00, 3.00,  1.00,  1.00,  1.00].normalizeSum,
-			inf),
+		\rate, 1/16,
 		\startPos, 0,
 		\bufnum, buf,
 		\numFrames, buf.numFrames,

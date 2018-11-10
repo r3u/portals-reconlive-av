@@ -41,7 +41,7 @@ class Path(db.Model):
 class LocationInfo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     location_id = db.Column(db.Integer, db.ForeignKey(Location.id))
-    description = db.Column(db.TEXT)
+    info = db.Column(db.TEXT)
     location = relationship("Location")
 
 
