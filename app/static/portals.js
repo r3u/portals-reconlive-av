@@ -21,7 +21,7 @@ function clearChat() {
 
 function appendToChat(message) {
     if($('#chat-messages').val()) {
-        message = "\n" + message;
+        message = "\n\n" + message;
     }
     $('#chat-messages').val($('#chat-messages').val() + message);
     $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);

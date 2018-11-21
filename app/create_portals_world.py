@@ -16,26 +16,24 @@ def add(obj):
 def create_test_world():
     world = add(World(name='pOrtals::reconLIVE:AudioTest'))
 
-    #Location format: xxxx = add(Location(name='xxxx', world=world))
-
-    #Transcient zones
+    # Transient zones
     fromPortal = add(Location(name='pOrtal', world=world))
     oceanSurface = add(Location(name='Ocean Surface', world=world))
 
-    #Ocean zone
+    # Ocean zone
     oceanFloor = add(Location(name='Ocean Floor', world=world))
     oceanPortal = add(Location(name='pOrtal area', world=world))
 
-    #Tower zone
+    # Tower zone
     towerTop = add(Location(name='Tower Top', world=world))
     towerStairway = add(Location(name='Stairway', world=world))
     towerBase = add(Location(name='Base of the Tower', world=world))
 
-    #Secret Island abbr. SI
+    # Secret Island abbr. SI
     siSurface = add(Location(name='SI Surface', world=world))
     siSafeHouse = add(Location(name='SI Safe House', world=world))
 
-    #Sunshine plaza (prev. sunrise/sunset) abbr. SP
+    # Sunshine plaza (prev. sunrise/sunset) abbr. SP
     spBeach = add(Location(name='SP Beach', world=world))
     spBeachToClearing = add(Location(name='SP Forest Path B', world=world))
     spRockPool = add(Location(name='SP Rock Pool', world=world))
@@ -51,7 +49,7 @@ def create_test_world():
     spMaze = add(Location(name='SP Maze', world=world))
     spClearing = add(Location(name='SP Hotel Clearing', world=world))
 
-    #Pink Lake Island abbr. PLI
+    # Pink Lake Island abbr. PLI
     pliLanding = add(Location(name='PLI Landing', world=world))
     pliBoathouseBay = add(Location(name='PLI Boathouse Bay ', world=world))
     pliBoathouse = add(Location(name='PLI Boathouse', world=world))
@@ -83,7 +81,7 @@ def create_test_world():
     pliPass = add(Location(name='PLI The Pass', world=world))
     pliCliffCave = add(Location(name='PLI Cliff Cave', world=world))
 
-    #Crater Island abbr. CI
+    # Crater Island abbr. CI
     ciSub2stair = add(Location(name='CI Sub.2 - Stairwell', world=world))
     ciSub2room = add(Location(name='CI Sub.2 - Room', world=world))
     ciSub1stair = add(Location(name='CI Sub.1 - Stairwell', world=world))
@@ -96,9 +94,8 @@ def create_test_world():
     ciLoadingBay = add(Location(name='CI Loading Bay', world=world))
     ciJetty = add(Location(name='CI Jetty', world=world))
 
-    
+    # PATH DESCRIPTIONS
 
-# PATH DESCRIPTIONS
     # FROM Portal
     add(Path(
         start=fromPortal, destination=towerTop,
@@ -236,8 +233,7 @@ def create_test_world():
         description=""
     ))
 
-
-# ALL OTHER PATH DESCRIPTIONS BASED ON START LOCATION (rows in matrix)
+    # ALL OTHER PATH DESCRIPTIONS BASED ON START LOCATION (rows in matrix)
 
     # Tower
     add(Path(
@@ -265,7 +261,6 @@ def create_test_world():
         description="AT THE BOTTOM OF THE TOWER IS A STAIRWAY THAT LEADS UP AND AROUND THE TOWER TO THE OCEAN’S MEMBRANE."
     ))
 
-
     # Ocean
     add(Path(
         start=oceanSurface, destination=oceanFloor,
@@ -282,7 +277,6 @@ def create_test_world():
         description="THE WATER COMES UP TO YOUR ANKLES. DROPS OF WATER FALL FROM ABOVE YOU AND ECHO OMINOUSLY INTO AND FROM THE ABYSS. THERE ARE STRANGE SOUNDS HERE, CRACKLY AND DRY AND GLITCHY…  "
     ))
 
-
     # Secret Island
     add(Path(
         start=oceanSurface, destination=siSurface,
@@ -298,7 +292,6 @@ def create_test_world():
         start=siSafeHouse, destination=siSurface,
         description="YOU ARE ON A SMALL FLOATING ISLAND. IT'S HIGHEST POINT IS ABOUT 6 METRES ABOVE SEA LEVEL. THERE IS A SCRAGGY, THORNY BUSH UP ON TOP. IT SURROUNDS A SMALL SPHERICAL, POLISHED BOULDER."
     ))
-
 
     # Sunshine Plaza
     add(Path(
@@ -535,7 +528,6 @@ def create_test_world():
         start=spClearing, destination=spMaze,
         description="YOU FIND YOURSELF AT THE ENTRANCE TO A MAZE. THE PATHS ARE NARROW AS IT HAS NOT BEEN BE MAINTAINED AND THE HEDGES ARE TALL."
     ))
-
 
     # Pink Lake Island
     add(Path(
@@ -873,7 +865,6 @@ def create_test_world():
         description="YOU ARE BACK AT THE PASS LOOKING IN TOWARDS THE SHIMMERING PINK LAKE."
     ))
 
-
     # Crater Island
     add(Path(
         start=oceanSurface, destination=ciLoadingBay,
@@ -985,11 +976,9 @@ def create_test_world():
         description="THE FOG IS DENSE AND YOU FIND A DAMP, ALMOST VERTICAL, DARK GREY ROCK WALL THAT CURVES AROUND TO THE LEFT AND RIGHT. YOU CAN HEAR THE SEA BEHIND YOU."
     ))
 
-
     # LOCATION INFO
 
-
-    #Transcient zones
+    # Transcient zones
     add(LocationInfo(
         location=fromPortal,
         info=""
@@ -1000,7 +989,7 @@ def create_test_world():
         info="Depends on weather and time of day"
     ))
 
-    #Ocean zone
+    # Ocean zone
     add(LocationInfo(
         location=oceanFloor,
         info="Light has dappled effect from water acting as filter - depends on time of day. Strange whale/submarine sounds - depends on time of day or status of session"
@@ -1011,7 +1000,7 @@ def create_test_world():
         info="Strange sounds are leaks from other (real) world. "
     ))
 
-    #Tower zone
+    # Tower zone
     add(LocationInfo(
         location=towerTop,
         info="The cube: pulses colours (emerald-yellow-fushia-white), top closed. Clanky bell sound."
@@ -1027,7 +1016,7 @@ def create_test_world():
         info="No current info."
     ))
 
-    #Secret Island abbr. SI
+    # Secret Island abbr. SI
     add(LocationInfo(
         location=siSurface,
         info="Different time-feel: within a space where time moves slower and outer sound is not audible. Can see everything outside speed up. Constant climate: no wind/air movement, cool. Scout feels more energised."
@@ -1038,7 +1027,7 @@ def create_test_world():
         info="Almost infinity mirror effect with lights on glass."
     ))
 
-    #Sunshine plaza (prev. sunrise/sunset) abbr. SP
+    # Sunshine plaza (prev. sunrise/sunset) abbr. SP
     add(LocationInfo(
         location=spBeach,
         info="No current info."
@@ -1109,7 +1098,7 @@ def create_test_world():
         info="TO: Glitchy ghost freesia under awning on steps to hotel ruins. Detached phone in rubble with connection to mountain. "
     ))
 
-    #Pink Lake Island abbr. PLI
+    # Pink Lake Island abbr. PLI
     add(LocationInfo(
         location=pliLanding,
         info="TOs: Canoe with oar. Row boat. Rock climbing kit."
@@ -1260,7 +1249,7 @@ def create_test_world():
         info=" SAB #PLI-2-11-13 is based here. Occasionally out between here and Monument Mt. Peak. Has a small fire going sometimes. "
     ))
 
-    #Crater Island abbr. CI
+    # Crater Island abbr. CI
     add(LocationInfo(
         location=ciSub2stair,
         info="TOs: Tug cart jammed against stair."
