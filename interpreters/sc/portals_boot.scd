@@ -69,10 +69,6 @@ s.waitForBoot({
 
 	p = ProxySpace.new(s);
 
-	// For testing
-	//p.quant = 0;
-	//p.fadeTime = 0;
-
 	// For performance
 	p.quant = 1;
 	p.fadeTime = 20;
@@ -81,23 +77,23 @@ s.waitForBoot({
 	p[\typingSpeed] = 1.0;
 
 	p[\distance] = 0.1;
-	p[\distance].fadeTime = 0.1;
+	p[\distance].fadeTime = 4;
 	p[\distance].quant = 0;
 
 	p[\track1mix] = 1.0;
-	p[\track1mix].fadeTime = 0.1;
+	p[\track1mix].fadeTime = 4;
 	p[\track1mix].quant = 0;
 
 	p[\track2mix] = 1.0;
-	p[\track2mix].fadeTime = 0.1;
+	p[\track2mix].fadeTime = 4;
 	p[\track2mix].quant = 0;
 
 	p[\track3mix] = 1.0;
-	p[\track3mix].fadeTime = 0.1;
+	p[\track3mix].fadeTime = 4;
 	p[\track3mix].quant = 0;
 
 	p[\track4mix] = 1.0;
-	p[\track4mix].fadeTime = 0.1;
+	p[\track4mix].fadeTime = 4;
 	p[\track4mix].quant = 0;
 
 	p[\mix] = {
@@ -147,4 +143,8 @@ n.parent.alwaysOnTop_(true);
 ~tracks.do({ arg track; p[track] = {}; }); // Clear tracks
 
 
-// Fdef(\loadMacro).value("hotel_basement/hotel_basement.scd")
+Fdef(\loadMacro).value("hotel_basement/hotel_basement.scd")
+
+p.fadeTime = 1;
+
+p[\distance] = 0

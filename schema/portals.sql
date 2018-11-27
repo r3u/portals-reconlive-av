@@ -75,7 +75,7 @@ VALUES (
 );
 -- tester default password: tester
 INSERT INTO actor(name, role, password) VALUES (
-    'tester',
+    'scout',
     'scout',
     '$2y$12$k90XEfRb7O7rVnvpo05ixOgV8NIfqlNh06zQZrKaQLaArMzoHM4hW'
 );

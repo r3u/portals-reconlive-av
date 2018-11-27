@@ -2,5 +2,5 @@
 
 set -euo pipefail
 
-sqlite3 /tmp/portals.db < schema/portals.sql
+sqlite3 /Users/henry/Desktop/portals.db < schema/portals.sql
 cd app && python3 create_portals_world.py

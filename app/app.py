@@ -19,7 +19,7 @@ if app.config['SECRET_KEY'] is None:
     app.config['SECRET_KEY'] = str(uuid4())
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/portals.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/henry/Desktop/portals.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 bcrypt = Bcrypt(app)
