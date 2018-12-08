@@ -8,7 +8,7 @@
 import eventlet
 eventlet.monkey_patch()
 
-from flask import request, redirect, abort
+from flask import request, redirect, abort, jsonify
 from flask import send_file, render_template
 from flask_login import (LoginManager, current_user, login_user, logout_user)
 from flask_socketio import emit, join_room, disconnect
@@ -19,7 +19,7 @@ from app_socketio import socketio
 from model import Actor
 from services.session_service import get_active_session
 from services.navigation_service import get_adjacent_locations, move_to
-from services.path_service import get_path
+from services.path_service import get_path, get_paths_and_locations
 from services.chat_service import save_log_entry, load_chat_log
 from services.asset_metadata_service import asset_metadata
 from services.event_service import handle_message, listeners
@@ -105,6 +105,12 @@ def move():
     destination_id = data['destinationId']
     move_to(destination_id)
     return '', 204
+
+
+@guide_only
+@app.route('/locations_paths.json', methods=['GET'])
+def locations_and_paths():
+    return jsonify(get_paths_and_locations()), 200
 
 
 @guide_only
