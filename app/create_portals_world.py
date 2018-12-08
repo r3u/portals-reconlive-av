@@ -258,7 +258,12 @@ def create_test_world():
 
     add(Path(
         start=towerBase, destination=towerStairway,
-        description="AT THE BOTTOM OF THE TOWER IS A STAIRWAY THAT LEADS UP AND AROUND THE TOWER TO THE OCEAN’S MEMBRANE."
+        description="YOU WALK UP THE STAIRCASE AROUND THE TOWER. THE SURFACE MEMBRANE MOVES GENTLY AND YOU CAN FEEL THE WEIGHT OF THE WATER IT HOLDS."
+    ))
+
+    add(Path(
+        start=towerBase, destination=oceanFloor,
+        description="DROPS OF WATER FALL FROM ABOVE YOU AND ECHO OMINOUSLY FROM THE ABYSS. THERE ARE STRANGE SOUNDS HERE, CRACKLY AND DRY AND GLITCHY…  YOU CAN SEE THE LIGHT OF THE PORTAL FURTHER OUT."
     ))
 
     # Ocean
@@ -270,6 +275,11 @@ def create_test_world():
     add(Path(
         start=oceanFloor, destination=oceanPortal,
         description="STANDING BY THE PORTAL, YOU FIND THE STRANGE SOUNDS CLEARER…"
+    ))
+
+    add(Path(
+        start=oceanFloor, destination=towerBase,
+        description="AT THE BOTTOM OF THE TOWER IS A STAIRWAY THAT LEADS UP AND AROUND THE TOWER TO THE OCEAN’S MEMBRANE."
     ))
 
     add(Path(
