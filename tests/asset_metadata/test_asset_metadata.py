@@ -7,7 +7,7 @@ from services.asset_metadata_service import AssetMetadata, AssetMetadataDef, Ass
 
 def test_load_basic_metadata(monkeypatch):
     def mock_isfile(filename):
-        assert filename == "test.wav"
+        assert filename == "/my/path/test.wav"
         return True
     monkeypatch.setattr(os.path, 'isfile', mock_isfile)
 
@@ -20,7 +20,7 @@ def test_load_basic_metadata(monkeypatch):
       - TestLocation
     """
     definition = yaml.safe_load(file_contents)
-    metadata = AssetMetadataDef("test.wav.yaml", definition)
+    metadata = AssetMetadataDef("/my/path", "test.wav.yaml", definition)
     assert metadata.filename == "test.wav.yaml"
     assert metadata.asset_filename == "test.wav"
     assert metadata.type == 'audio'
@@ -33,7 +33,7 @@ def test_load_basic_metadata(monkeypatch):
 
 def test_minimal_file(monkeypatch):
     def mock_isfile(filename):
-        assert filename == "test.wav"
+        assert filename == "/my/path/test.wav"
         return True
     monkeypatch.setattr(os.path, 'isfile', mock_isfile)
 
@@ -41,7 +41,7 @@ def test_minimal_file(monkeypatch):
     type: audio
     """
     definition = yaml.safe_load(file_contents)
-    metadata = AssetMetadataDef("test.wav.yaml", definition)
+    metadata = AssetMetadataDef("/my/path", "test.wav.yaml", definition)
     assert metadata.filename == "test.wav.yaml"
     assert metadata.type == 'audio'
     assert len(metadata.locations) == 0
@@ -50,19 +50,19 @@ def test_minimal_file(monkeypatch):
 
 def test_empty_input_file(monkeypatch):
     def mock_isfile(filename):
-        assert filename == "test.wav"
+        assert filename == "/my/path/test.wav"
         return True
     monkeypatch.setattr(os.path, 'isfile', mock_isfile)
 
     file_contents = ""
     definition = yaml.safe_load(file_contents)
     with pytest.raises(AssetMetadataError):
-        AssetMetadataDef("test.wav.yaml", definition)
+        AssetMetadataDef("/my/path", "test.wav.yaml", definition)
 
 
 def test_validate_missing_type(monkeypatch):
     def mock_isfile(filename):
-        assert filename == "test.wav"
+        assert filename == "/my/path/test.wav"
         return True
     monkeypatch.setattr(os.path, 'isfile', mock_isfile)
 
@@ -73,12 +73,12 @@ def test_validate_missing_type(monkeypatch):
     """
     definition = yaml.safe_load(file_contents)
     with pytest.raises(AssetMetadataError):
-        AssetMetadataDef("test.wav.yaml", definition)
+        AssetMetadataDef("/my/path/", "test.wav.yaml", definition)
 
 
 def test_invalid_tag_list(monkeypatch):
     def mock_isfile(filename):
-        assert filename == "test.wav"
+        assert filename == "/my/path/test.wav"
         return True
     monkeypatch.setattr(os.path, 'isfile', mock_isfile)
 
@@ -88,12 +88,12 @@ def test_invalid_tag_list(monkeypatch):
     """
     definition = yaml.safe_load(file_contents)
     with pytest.raises(AssetMetadataError):
-        AssetMetadataDef("test.wav.yaml", definition)
+        AssetMetadataDef("/my/path", "test.wav.yaml", definition)
 
 
 def test_invalid_tag_type(monkeypatch):
     def mock_isfile(filename):
-        assert filename == "test.wav"
+        assert filename == "/my/path/test.wav"
         return True
     monkeypatch.setattr(os.path, 'isfile', mock_isfile)
 
@@ -105,12 +105,12 @@ def test_invalid_tag_type(monkeypatch):
     """
     definition = yaml.safe_load(file_contents)
     with pytest.raises(AssetMetadataError):
-        AssetMetadataDef("test.wav.yaml", definition)
+        AssetMetadataDef("/my/path", "test.wav.yaml", definition)
 
 
 def test_invalid_location_list(monkeypatch):
     def mock_isfile(filename):
-        assert filename == "test.wav"
+        assert filename == "/my/path/test.wav"
         return True
     monkeypatch.setattr(os.path, 'isfile', mock_isfile)
 
@@ -120,12 +120,12 @@ def test_invalid_location_list(monkeypatch):
     """
     definition = yaml.safe_load(file_contents)
     with pytest.raises(AssetMetadataError):
-        AssetMetadataDef("test.wav.yaml", definition)
+        AssetMetadataDef("/my/path", "test.wav.yaml", definition)
 
 
 def test_invalid_location_type(monkeypatch):
     def mock_isfile(filename):
-        assert filename == "test.wav"
+        assert filename == "/my/path/test.wav"
         return True
     monkeypatch.setattr(os.path, 'isfile', mock_isfile)
 
@@ -136,12 +136,12 @@ def test_invalid_location_type(monkeypatch):
     """
     definition = yaml.safe_load(file_contents)
     with pytest.raises(AssetMetadataError):
-        AssetMetadataDef("test.wav.yaml", definition)
+        AssetMetadataDef("/my/path", "test.wav.yaml", definition)
 
 
 def test_missing_asset_file(monkeypatch):
     def mock_isfile(filename):
-        assert filename == "test.wav"
+        assert filename == "/my/path/test.wav"
         return False
     monkeypatch.setattr(os.path, 'isfile', mock_isfile)
 
@@ -150,7 +150,7 @@ def test_missing_asset_file(monkeypatch):
     """
     definition = yaml.safe_load(file_contents)
     with pytest.raises(AssetMetadataError):
-        AssetMetadataDef("test.wav.yaml", definition)
+        AssetMetadataDef("/my/path", "test.wav.yaml", definition)
 
 
 def test_load_asset_metadata_path():
@@ -159,10 +159,10 @@ def test_load_asset_metadata_path():
     metadata = AssetMetadata()
     metadata.load_from_path(test_assets_path)
 
-    expected_file1 = os.path.join(test_assets_path, "TestLocation1", "sound", "testmacro.scd.yaml")
-    expected_file2 = os.path.join(test_assets_path, "TestLocation2", "sound", "testmacro1.scd.yaml")
-    expected_file3 = os.path.join(test_assets_path, "TestLocation2", "sound", "testmacro2.scd.yaml")
-    expected_file4 = os.path.join(test_assets_path, "testimage.jpg.yaml")
+    expected_file1 = os.path.join("TestLocation1", "sound", "testmacro.scd.yaml")
+    expected_file2 = os.path.join("TestLocation2", "sound", "testmacro1.scd.yaml")
+    expected_file3 = os.path.join("TestLocation2", "sound", "testmacro2.scd.yaml")
+    expected_file4 = os.path.join("testimage.jpg.yaml")
 
     assert metadata.by_filename(expected_file1) is not None
     assert metadata.by_filename(expected_file2) is not None
