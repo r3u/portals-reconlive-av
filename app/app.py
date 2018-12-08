@@ -11,8 +11,6 @@ import os
 import logging
 from uuid import uuid4
 
-import config
-
 app = Flask('portals', static_url_path='')
 app.logger.setLevel(logging.DEBUG)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -21,7 +19,8 @@ if app.config['SECRET_KEY'] is None:
     app.config['SECRET_KEY'] = str(uuid4())
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = config.database_uri
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/henry/Desktop/portals.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 bcrypt = Bcrypt(app)

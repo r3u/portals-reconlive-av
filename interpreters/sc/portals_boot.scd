@@ -46,7 +46,7 @@ s.waitForBoot({
 		Out.ar(out, Pan2.ar(filtered));
 	}).add;
 
-	MIDIClient.init;
+/*	MIDIClient.init;
 	uid = MIDIIn.findPort("Launch Control", "Launch Control").uid;
 	MIDIIn.connectAll();
 	MIDIIn.control = {
@@ -63,7 +63,7 @@ s.waitForBoot({
 				hook.value(value);
 			};
 		};
-	};
+	};*/
 
 	StageLimiter.activate;
 
@@ -142,8 +142,6 @@ n.parent.alwaysOnTop_(true);
 ~tracks.do({ arg track; p[track].play; });
 ~tracks.do({ arg track; p[track] = {}; }); // Clear tracks
 
-
-Fdef(\loadMacro).value("hotel_basement/hotel_basement.scd")
 
 p.fadeTime = 1;
 

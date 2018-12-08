@@ -13,7 +13,7 @@ def add(obj):
     return obj
 
 
-def create_test_world():
+def create_portals_world():
     world = add(World(name='pOrtals::reconLIVE:AudioTest'))
 
     # Transient zones
@@ -51,7 +51,7 @@ def create_test_world():
 
     # Pink Lake Island abbr. PLI
     pliLanding = add(Location(name='PLI Landing', world=world))
-    pliBoathouseBay = add(Location(name='PLI Boathouse Bay ', world=world))
+    pliBoathouseBay = add(Location(name='PLI Boathouse Bay', world=world))
     pliBoathouse = add(Location(name='PLI Boathouse', world=world))
     pliIsolatedBeach = add(Location(name='Isolated Beach', world=world))
     pliRavine = add(Location(name='PLI Ravine', world=world))
@@ -1324,4 +1324,4 @@ def create_test_world():
 
 
 if __name__ == '__main__':
-    create_test_world()
+    create_portals_world()
