@@ -146,3 +146,5 @@ n.parent.alwaysOnTop_(true);
 p.fadeTime = 1;
 
 p[\distance] = 0
+
+Server.killAll
