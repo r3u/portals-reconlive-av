@@ -9,7 +9,7 @@ import eventlet
 eventlet.monkey_patch()
 
 from flask import request, redirect, abort
-from flask import send_file, render_template
+from flask import send_file, render_template, jsonify
 from flask_login import (LoginManager, current_user, login_user, logout_user)
 from flask_socketio import emit, join_room, disconnect
 from sqlalchemy.orm.exc import NoResultFound
@@ -18,21 +18,20 @@ from app import app, bcrypt
 from app_socketio import socketio
 from model import Actor
 from services.session_service import get_active_session
-from services.navigation_service import get_adjacent_locations, move_to
+from services.navigation_service import move_to
+from services.location_service import get_adjacent_locations, get_current_location, get_location
 from services.path_service import get_path
 from services.chat_service import save_log_entry, load_chat_log
 from services.asset_metadata_service import asset_metadata
 from services.event_service import handle_message, listeners
 from event_listeners.socketio import room, namespace, SocketIOEventListener
-from event_listeners.supercollider import SuperColliderEventListener
 from decorators import public_endpoint, guide_only
-from rest import rest_chat_msg
+from rest import rest_chat_msg, rest_location_msg, rest_asset_metadata_msg
 
 from argparse import ArgumentParser
 
 
 listeners.append(SocketIOEventListener())
-listeners.append(SuperColliderEventListener())
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -109,8 +108,28 @@ def move():
 
 @guide_only
 @app.route('/location_info.json', methods=['POST'])
-def location_info():
+def update_location_info():
     return '', 204
+
+
+@public_endpoint
+@app.route('/current_location.json', methods=['GET'])
+def current_location_info():
+    return jsonify(rest_location_msg(get_current_location()))
+
+
+@public_endpoint
+@app.route('/metadata.json', methods=['GET'])
+def get_metadata():
+    location_id = request.args.get('location_id')
+    if not location_id:
+        return 'Missing parameter: location_id', 400
+    location = get_location(location_id)
+    if not location:
+        return 'Invalid location_id', 400
+    metadata = asset_metadata.by_location(location.name)
+    rest_metadata = [rest_asset_metadata_msg(m) for m in metadata]
+    return jsonify(rest_metadata), 200
 
 
 @guide_only
@@ -186,4 +205,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.asset_dir:
         init_assets(args.asset_dir)
-    socketio.run(app, host='0.0.0.0', port=8080, debug=True)
+    socketio.run(app, host='0.0.0.0', port=8080, debug=False)

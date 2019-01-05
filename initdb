@@ -2,5 +2,9 @@
 
 set -euo pipefail
 
-sqlite3 /Users/henry/Desktop/portals.db < schema/portals.sql
+portals_db=${PORTALS_DB:-}
+
+[ -z "$portals_db" ] && echo "Env variable PORTALS_DB not set" && exit 1
+
+sqlite3 "$portals_db" < schema/portals.sql
 cd app && python3 create_portals_world.py

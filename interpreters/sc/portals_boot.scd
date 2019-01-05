@@ -120,6 +120,11 @@ s.waitForBoot({
 		};
 	}, '/load_macro');
 
+	OSCdef(\endHandler, {
+		"End handler called".postln;
+		~tracks.do({ arg track; p[track] = {}; });
+	}, '/end');
+
 	~midiHooks.put(21, {
 		arg value;
 		p[\distance] = value / 127.0;
@@ -139,10 +144,18 @@ m = ProxyMixer(p, 8);
 n.parent.alwaysOnTop_(true);
 )
 
+
+// DEBUG HELPERS
+
 ~tracks.do({ arg track; p[track].play; });
-~tracks.do({ arg track; p[track] = {}; }); // Clear tracks
+
 
 
 p.fadeTime = 1;
 
 p[\distance] = 0
+
+
+m = NetAddr("127.0.0.1", 57120);
+m.sendMsg("/end");
+m.sendMsg("/load_macro", "Base of the Tower/Base of the Tower.scd");

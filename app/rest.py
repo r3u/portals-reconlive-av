@@ -4,7 +4,8 @@
 # See the LICENSE file in the project root for more information.
 #
 
-from model import ChatlogEntry
+from model import ChatlogEntry, Location
+from services.asset_metadata_service import AssetMetadataDef
 
 
 def rest_chat_msg(ent: ChatlogEntry):
@@ -23,4 +24,20 @@ def rest_navigation_msg(start_id: int, destination_id: int, session_id: int):
         "session_id": session_id,
         "start_id": start_id,
         "destination_id": destination_id
+    }
+
+
+def rest_location_msg(loc: Location):
+    return {
+        "id": loc.id,
+        "name": loc.name
+    }
+
+
+def rest_asset_metadata_msg(metadata: AssetMetadataDef):
+    return {
+        "type": metadata.type,
+        "asset": metadata.asset_filename,
+        "locations": list(metadata.locations),
+        "tags": list(metadata.tags)
     }
