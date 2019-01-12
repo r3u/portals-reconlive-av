@@ -202,7 +202,8 @@ def init_assets(asset_dir):
 if __name__ == "__main__":
     parser = ArgumentParser("pOrtals::reconLIVE:AV server")
     parser.add_argument('--asset-dir', action='store', dest='asset_dir', required=True)
+    parser.add_argument('--debug', action='store_true', dest='debug')
     args = parser.parse_args()
     if args.asset_dir:
         init_assets(args.asset_dir)
-    socketio.run(app, host='0.0.0.0', port=8080, debug=False)
+    socketio.run(app, host='0.0.0.0', port=8080, debug=args.debug)
