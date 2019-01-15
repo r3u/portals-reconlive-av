@@ -9,4 +9,4 @@ from flask_socketio import SocketIO
 from app import app
 
 
-socketio = SocketIO(app, engineio_logger=True)
+socketio = SocketIO(app, engineio_logger=False)

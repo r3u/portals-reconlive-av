@@ -1,22 +1,42 @@
 (
-~tracks = [\track1, \track2, \track3, \track4];
+~assetDir = "/Users/henry/Dropbox/reconlive/worlds/PV3/assets";
+
+~macroTracks = [\track1, \track2, \track3, \track4];
 
 ~midiHooks = Dictionary.new;
 ~midiDebug = true;
 
+~bufferCache = Dictionary.new;
 Fdef(\loadSoundFile, {
 	| filename, action |
+	var fullPath, cached;
+
 	("INFO: Loading file " ++ filename).postln;
-	Buffer.read(s, thisProcess.nowExecutingPath.dirname +/+ filename, action: {
-		|buf|
-		action.value(buf);
-	});
+	fullPath = thisProcess.nowExecutingPath.dirname +/+ filename;
+	cached = ~bufferCache.at(fullPath);
+	if (cached != nil) {
+		"Buffer cache HIT".postln;
+		action.value(cached);
+	} {
+		"Buffer cache MISS".postln;
+		Buffer.read(s, fullPath, action: {
+			|buf|
+			~bufferCache.add(fullPath -> buf);
+			action.value(buf);
+		});
+	};
 });
 
 Fdef(\loadMacro, {
 	|filename|
-	~tracks.do({ arg track; p[track] = {}; }); // Clear tracks
-	this.executeFile("/Users/henry/Dropbox/reconlive/worlds/PV3/assets" +/+ filename);
+	~macroTracks.do({ arg track; p[track] = {}; }); // Clear tracks
+	this.executeFile(~assetDir +/+ filename);
+});
+
+Fdef(\loadSimple, {
+	|filename|
+	p[\track5] = {};
+	this.executeFile(~assetDir +/+ filename);
 });
 
 s.options.numInputBusChannels = 0;
@@ -96,18 +116,25 @@ s.waitForBoot({
 	p[\track4mix].fadeTime = 4;
 	p[\track4mix].quant = 0;
 
+	p[\track5mix] = 1.0;
+	p[\track5mix].fadeTime = 4;
+	p[\track5mix].quant = 0;
+
+	p[\track5].fadeTime = 0.1;
+
 	p[\mix] = {
 		var sig = (
 			(p[\track1].ar(2) * p[\track1mix].kr) +
 			(p[\track2].ar(2) * p[\track2mix].kr) +
 			(p[\track3].ar(2) * p[\track3mix].kr) +
-			(p[\track4].ar(2) * p[\track4mix].kr)
+			(p[\track4].ar(2) * p[\track4mix].kr) +
+			(p[\track5].ar(2) * p[\track5mix].kr)
 		);
 		HPF.ar(FreeVerb.ar(sig, p[\distance].kr, 1.0), (50 + (p[\distance].kr * 200))) * 2;
 	};
 
 	p[\mix].play;
-	//~tracks.do({ arg track; p[track].play; });
+	//~macroTracks.do({ arg track; p[track].play; });
 
 	OSCdef(\loadMacroHandler, {
 		|msg, time, addr, recvPort|
@@ -122,7 +149,8 @@ s.waitForBoot({
 
 	OSCdef(\endHandler, {
 		"End handler called".postln;
-		~tracks.do({ arg track; p[track] = {}; });
+		~macroTracks.do({ arg track; p[track] = {}; });
+		p[\track5] = {};
 	}, '/end');
 
 	~midiHooks.put(21, {
@@ -147,15 +175,19 @@ n.parent.alwaysOnTop_(true);
 
 // DEBUG HELPERS
 
-~tracks.do({ arg track; p[track].play; });
-
-
+~macroTracks.do({ arg track; p[track].play; });
 
 p.fadeTime = 1;
 
 p[\distance] = 0
 
-
 m = NetAddr("127.0.0.1", 57120);
 m.sendMsg("/end");
-m.sendMsg("/load_macro", "Base of the Tower/Base of the Tower.scd");
+
+s.volume.mute;
+s.volume.unmute;
+
+Fdef(\loadSimple).value("Audio/Tagged/Thunder 1/Thunder 1.scd");
+
+
+~bufferCache.size
