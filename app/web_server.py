@@ -146,7 +146,7 @@ def get_metadata_by_messages():
     for tag in tags:
         for meta_def in asset_metadata.by_tag(tag):
             if meta_def.filename not in matches:
-                matches[meta_def.filename] = meta_def.filename
+                matches[meta_def.filename] = rest_asset_metadata_msg(meta_def)
                 scores[meta_def.filename] = 0
             scores[meta_def.filename] += 1
     return jsonify({'matches': matches, 'scores': scores}), 200
