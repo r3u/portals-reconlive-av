@@ -7,8 +7,12 @@
 import yaml
 import glob
 import os
+import logging
 
 from typing import FrozenSet, Dict, List
+
+
+logger = logging.getLogger('flask.app.asset_metadata_service')
 
 
 class AssetMetadataError(Exception):
@@ -97,27 +101,44 @@ class AssetMetadata:
     def __init__(self):
         self.__definitions: Dict[str, AssetMetadataDef] = {}
         self.__by_location_cache: Dict[str, List['AssetMetadataDef']] = {}
+        self.__by_tag_cache: Dict[str, List['AssetMetadataDef']] = {}
 
     def load_from_path(self, path: str) -> None:
         by_location_cache: Dict[str, List['AssetMetadataDef']] = {}
+        by_tag_cache: Dict[str, List['AssetMetadataDef']] = {}
         pattern = os.path.join(path, '**', '*.yaml')
         metadata: Dict[str, AssetMetadataDef] = {}
+        metadata_found = False
         for filename in glob.glob(pattern, recursive=True):
+            metadata_found = True
             filename = filename.replace(path, '', 1)
             if filename.startswith('/'):
                 filename = filename.replace('/', '', 1)
-            print("Loading metadata file: {0}".format(filename))
+            logger.info("Loading metadata file: {0}".format(filename))
             asset_metadata_def = AssetMetadataDef.from_file(path, filename)
             for location in asset_metadata_def.locations:
                 if location not in by_location_cache:
                     by_location_cache[location] = []
                 by_location_cache[location].append(asset_metadata_def)
+            for tag in asset_metadata_def.tags:
+                t = tag.lower().strip()
+                if t not in by_tag_cache:
+                    by_tag_cache[t] = []
+                by_tag_cache[t].append(asset_metadata_def)
             metadata[filename] = asset_metadata_def
+        if not metadata_found:
+            logger.warning("No asset metadata files found")
         self.__definitions = metadata
         self.__by_location_cache = by_location_cache
+        self.__by_tag_cache = by_tag_cache
 
     def by_filename(self, filename):
         return self.__definitions.get(filename)
+
+    def by_tag(self, tag_name: str) -> List['AssetMetadataDef']:
+        if tag_name not in self.__by_tag_cache:
+            return []
+        return list(self.__by_tag_cache[tag_name])
 
     def by_location(self, location_name: str) -> List['AssetMetadataDef']:
         if location_name not in self.__by_location_cache:

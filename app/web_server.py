@@ -21,15 +21,15 @@ from services.session_service import get_active_session
 from services.navigation_service import move_to
 from services.location_service import get_adjacent_locations, get_current_location, get_location
 from services.path_service import get_path
-from services.chat_service import save_log_entry, load_chat_log
+from services.chat_service import save_log_entry, load_chat_log, get_log_entries
 from services.asset_metadata_service import asset_metadata
 from services.event_service import handle_message, listeners
+from services.nl_util import tokenize
 from event_listeners.socketio import room, namespace, SocketIOEventListener
 from decorators import public_endpoint, guide_only
 from rest import rest_chat_msg, rest_location_msg, rest_asset_metadata_msg
 
 from argparse import ArgumentParser
-
 
 listeners.append(SocketIOEventListener())
 login_manager = LoginManager()
@@ -119,8 +119,8 @@ def current_location_info():
 
 
 @public_endpoint
-@app.route('/metadata.json', methods=['GET'])
-def get_metadata():
+@app.route('/metadata_by_location.json', methods=['GET'])
+def get_metadata_by_location():
     location_id = request.args.get('location_id')
     if not location_id:
         return 'Missing parameter: location_id', 400
@@ -130,6 +130,26 @@ def get_metadata():
     metadata = asset_metadata.by_location(location.name)
     rest_metadata = [rest_asset_metadata_msg(m) for m in metadata]
     return jsonify(rest_metadata), 200
+
+
+@public_endpoint
+@app.route('/metadata_by_messages.json', methods=['GET'])
+def get_metadata_by_messages():
+    message_ids_param = request.args.get('message_ids')
+    if not message_ids_param:
+        return 'Missing parameter: message_ids', 400
+    message_ids = [int(i) for i in message_ids_param.split(',')]
+    log_entries = get_log_entries(message_ids)
+    tags = [k for ent in log_entries for k in tokenize(ent.message)]
+    matches = {}
+    scores = {}
+    for tag in tags:
+        for meta_def in asset_metadata.by_tag(tag):
+            if meta_def.filename not in matches:
+                matches[meta_def.filename] = meta_def.filename
+                scores[meta_def.filename] = 0
+            scores[meta_def.filename] += 1
+    return jsonify({'matches': matches, 'scores': scores}), 200
 
 
 @guide_only

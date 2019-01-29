@@ -5,7 +5,7 @@
 #
 
 from model import ChatlogEntry, Session, Actor
-from typing import Iterator
+from typing import Iterator, List
 from db import db
 
 
@@ -26,3 +26,11 @@ def save_log_entry(session: Session, actor: Actor, message: str) -> ChatlogEntry
     db.session.add(log_entry)
     db.session.commit()
     return log_entry
+
+
+def get_log_entry(log_entry_id: int) -> ChatlogEntry:
+    return ChatlogEntry.query.get(log_entry_id)
+
+
+def get_log_entries(log_entry_ids: List[int]) -> List[ChatlogEntry]:
+    return ChatlogEntry.query.filter(ChatlogEntry.id.in_(log_entry_ids))

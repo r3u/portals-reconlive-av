@@ -45,7 +45,7 @@ async def on_disconnect():
 
 
 def get_location_metadata(location_id):
-    url = '{0}/metadata.json?location_id={1}'.format(web_server, location_id)
+    url = '{0}/metadata_by_location.json?location_id={1}'.format(web_server, location_id)
     res = requests.get(url)
     if res.status_code != 200:
         raise BridgeError("Failed to get location metadata, status code={0}".format(res.status_code))
