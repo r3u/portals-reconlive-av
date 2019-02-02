@@ -8,13 +8,15 @@
 import eventlet
 eventlet.monkey_patch()
 
+import sys
+
 from flask import request, redirect, abort
 from flask import send_file, render_template, jsonify
 from flask_login import (LoginManager, current_user, login_user, logout_user)
 from flask_socketio import emit, join_room, disconnect
 from sqlalchemy.orm.exc import NoResultFound
 
-from app import app, bcrypt
+from app import app, bcrypt, asset_dir
 from app_socketio import socketio
 from model import Actor
 from services.session_service import get_active_session
@@ -30,6 +32,7 @@ from decorators import public_endpoint, guide_only
 from rest import rest_chat_msg, rest_location_msg, rest_asset_metadata_msg
 
 from argparse import ArgumentParser
+
 
 listeners.append(SocketIOEventListener())
 login_manager = LoginManager()
@@ -149,7 +152,9 @@ def get_metadata_by_messages():
                 matches[meta_def.filename] = rest_asset_metadata_msg(meta_def)
                 scores[meta_def.filename] = 0
             scores[meta_def.filename] += 1
-    return jsonify({'matches': matches, 'scores': scores}), 200
+    for filename, score in scores.items():
+        matches[filename]['score'] = score
+    return jsonify({'matches': matches}), 200
 
 
 @guide_only
@@ -214,16 +219,17 @@ def text(message):
     handle_message(ent)
 
 
-def init_assets(asset_dir):
-    app.logger.info("Loading assets from {0}".format(asset_dir))
-    asset_metadata.load_from_path(asset_dir)
+def init_assets(directory):
+    app.logger.info("Loading assets from {0}".format(directory))
+    asset_metadata.load_from_path(directory)
 
 
 if __name__ == "__main__":
     parser = ArgumentParser("pOrtals::reconLIVE:AV server")
-    parser.add_argument('--asset-dir', action='store', dest='asset_dir', required=True)
     parser.add_argument('--debug', action='store_true', dest='debug')
     args = parser.parse_args()
-    if args.asset_dir:
-        init_assets(args.asset_dir)
+    if asset_dir is not None:
+        init_assets(asset_dir)
+    else:
+        sys.exit(1)
     socketio.run(app, host='0.0.0.0', port=8080, debug=args.debug)

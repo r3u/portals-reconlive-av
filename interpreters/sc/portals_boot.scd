@@ -147,6 +147,17 @@ s.waitForBoot({
 		};
 	}, '/load_macro');
 
+	OSCdef(\loadSimpleHandler, {
+		|msg, time, addr, recvPort|
+
+		var simple = msg[1];
+
+		simple.postln;
+		if (simple != nil) {
+			Fdef(\loadSimple).value(simple);
+		};
+	}, '/load_simple');
+
 	OSCdef(\endHandler, {
 		"End handler called".postln;
 		~macroTracks.do({ arg track; p[track] = {}; });

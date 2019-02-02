@@ -20,11 +20,15 @@ if app.config['SECRET_KEY'] is None:
 
 portals_db = os.environ.get('PORTALS_DB')
 if portals_db is None:
-    app.logger.warn("PORTALS_DB not set. Using random memory database.")
+    app.logger.warn("PORTALS_DB not set. Using in-memory database.")
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{0}'.format(portals_db)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+asset_dir = os.environ.get('ASSET_DIR')
+if asset_dir is None:
+    app.logger.error("ASSET_DIR not set")
 
 bcrypt = Bcrypt(app)
 
