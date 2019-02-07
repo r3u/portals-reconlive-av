@@ -66,25 +66,6 @@ s.waitForBoot({
 		Out.ar(out, Pan2.ar(filtered));
 	}).add;
 
-/*	MIDIClient.init;
-	uid = MIDIIn.findPort("Launch Control", "Launch Control").uid;
-	MIDIIn.connectAll();
-	MIDIIn.control = {
-		arg thisUid, chan, ctrl, value;
-		var hook;
-
-		if (~midiDebug == true) {
-			("MIDI: ctrl " ++ ctrl ++ " = " ++ value).postln;
-		};
-
-		if (thisUid == uid && chan == 0) {
-			hook = ~midiHooks.at(ctrl);
-			if (hook != nil) {
-				hook.value(value);
-			};
-		};
-	};*/
-
 	StageLimiter.activate;
 
 	p = ProxySpace.new(s);
@@ -164,14 +145,11 @@ s.waitForBoot({
 		p[\track5] = {};
 	}, '/end');
 
-	~midiHooks.put(21, {
+	~remixFactor = 0.0;
+	Fdef(\remixFactor, {
 		arg value;
-		p[\distance] = value / 127.0;
-	});
-
-	~midiHooks.put(41, {
-		arg value;
-		var param = 1.0 - (value / 127.0);
+		var param = max(0.0, min(1.0, 1.0 - value));
+		~remixFactor = value;
 		p[\track2mix] = param;
 		p[\track3mix] = param;
 	});
@@ -190,7 +168,7 @@ n.parent.alwaysOnTop_(true);
 
 p.fadeTime = 1;
 
-p[\distance] = 0
+p[\distance] = 0.0
 
 m = NetAddr("127.0.0.1", 57120);
 m.sendMsg("/end");
@@ -198,7 +176,38 @@ m.sendMsg("/end");
 s.volume.mute;
 s.volume.unmute;
 
+Fdef(\loadMacro).value("Audio/Location Macros/Isolated Beach/Isolated Beach.scd");
 Fdef(\loadSimple).value("Audio/Tagged/Thunder 1/Thunder 1.scd");
 
+Fdef(\remixFactor).value(0.0)
 
 ~bufferCache.size
+
+
+// Open GUI ctrls
+(
+{
+	var window = Window("pOrtals SI ctrl", Rect(100, 500, 300, 100), resizable: false, scroll: false).front;
+	var hLayout = HLayout();
+	var vLayout = VLayout(hLayout);
+	var distanceSlider = Slider().value_(p[\distance].source).action_({
+		arg it;
+		p[\distance] = it.value;
+	});
+	var remixSlider = Slider().value_(~remixFactor).action_({
+		arg it;
+		Fdef(\remixFactor).value(it.value);
+	});
+	distanceSlider.orientation = \horizontal;
+	remixSlider.orientation = \horizontal;
+	vLayout.add(StaticText().string_("Distance"));
+	vLayout.add(distanceSlider);
+	vLayout.add(StaticText().string_("Remix"));
+	vLayout.add(remixSlider);
+	window.layout = vLayout;
+	window.front;
+	window.alwaysOnTop = true;
+}.value
+
+);
+)
