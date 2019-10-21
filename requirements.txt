@@ -22,7 +22,7 @@ MarkupSafe==1.0
 monotonic==1.5
 more-itertools==4.3.0
 multidict==4.5.2
-nltk==3.4
+nltk==3.4.5
 pipdeptree==0.13.1
 pluggy==0.7.1
 py==1.5.4
